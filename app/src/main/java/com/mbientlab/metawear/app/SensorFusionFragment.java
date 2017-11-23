@@ -115,7 +115,7 @@ public class SensorFusionFragment extends SensorFragment {
                 .gyroRange(GyroRange.GR_2000DPS)
                 .commit();
 
-        if (srcIndex == 0)
+        if(srcIndex == 0) {
             sensorFusion.quaternion().addRouteAsync(source -> source.stream((data, env) -> {
                 LineData chartData = chart.getData();
 
@@ -136,6 +136,7 @@ public class SensorFusionFragment extends SensorFragment {
 
                 return null;
             });
+        }
         if(srcIndex == 1) {
             sensorFusion.eulerAngles().addRouteAsync(source -> source.stream((data, env) -> {
                 LineData chartData = chart.getData();
