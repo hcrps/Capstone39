@@ -488,6 +488,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
                 }
 
                 finish();
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.action_manual_dfu:
                 if (checkLocationPermission()) {

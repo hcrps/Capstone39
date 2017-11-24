@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2015 MbientLab Inc. All rights reserved.
   ~
   ~ IMPORTANT: Your use of this Software is limited to those specific rights
@@ -31,6 +30,7 @@
   -->
 
 <resources>
+
     <style name="Widget.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/actionBarColor</item>
         <item name="android:background">@color/actionBarColor</item>
@@ -59,10 +59,13 @@
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_width">fill_parent</item>
     </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
