@@ -34,8 +34,8 @@
     android:gravity="bottom">
 
     <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:src="@mipmap/metawear_logo" android:id="@+id/imageView" />
+            android:paddingTop="@dimen/nav_header_vertical_spacing"/>
+            <!--android:src="@mipmap/metawear_logo" android:id="@+id/imageView"-->
 
     <LinearLayout
         android:paddingStart="4dp"
@@ -48,8 +48,8 @@
             android:paddingTop="@dimen/nav_header_vertical_spacing" android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/navigation_drawer_mbientlab_website" android:id="@+id/textView" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <!--android:text="@string/navigation_drawer_mbientlab_website" android:id="@+id/textView"-->
     </LinearLayout>
 
 </LinearLayout>

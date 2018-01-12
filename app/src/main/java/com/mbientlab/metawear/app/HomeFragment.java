@@ -112,7 +112,7 @@ public class HomeFragment extends ModuleFragmentBase {
                     return null;
                 }, Task.UI_THREAD_EXECUTOR)
         );
-        view.findViewById(R.id.update_firmware).setOnClickListener(view15 -> mwBoard.checkForFirmwareUpdateAsync()
+/*        view.findViewById(R.id.update_firmware).setOnClickListener(view15 -> mwBoard.checkForFirmwareUpdateAsync()
                 .continueWith(task -> {
                     if (task.isFaulted()) {
                         Snackbar.make(getActivity().findViewById(R.id.drawer_layout), task.getError().getLocalizedMessage(), Snackbar.LENGTH_LONG).show();
@@ -121,17 +121,17 @@ public class HomeFragment extends ModuleFragmentBase {
                     }
                     return null;
                 }, Task.UI_THREAD_EXECUTOR)
-        );
+        );*/
     }
 
-    private void setupDfuDialog(AlertDialog.Builder builder, int msgResId) {
+    /*private void setupDfuDialog(AlertDialog.Builder builder, int msgResId) {
         builder.setTitle(R.string.title_firmware_update)
                 .setPositiveButton(R.string.label_yes, (dialogInterface, i) -> fragBus.initiateDfu(null))
                 .setNegativeButton(R.string.label_no, null)
                 .setCancelable(false)
                 .setMessage(msgResId)
                 .show();
-    }
+    }*/
 
     @Override
     protected void boardReady() throws UnsupportedModuleException {
