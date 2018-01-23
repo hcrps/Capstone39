@@ -98,6 +98,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         Map<Integer, Class<? extends ModuleFragmentBase>> tempMap= new LinkedHashMap<>();
         tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_sensor_fusion, SensorFusionFragment.class);
+        tempMap.put(R.id.nav_capstone, CapstoneSensorDebugFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
 
         EXTENSION_TO_APP_TYPE= new HashMap<>();
@@ -358,7 +359,10 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(view -> ((ModuleFragmentBase) currentFragment).showHelpDialog());
+        // kahlan: added check
+        if (currentFragment != null) {
+            fab.setOnClickListener(view -> ((ModuleFragmentBase) currentFragment).showHelpDialog());
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
