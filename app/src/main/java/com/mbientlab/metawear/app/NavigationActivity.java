@@ -99,6 +99,9 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_sensor_fusion, SensorFusionFragment.class);
         tempMap.put(R.id.nav_capstone, CapstoneSensorDebugFragment.class);
+        tempMap.put(R.id.nav_gyro, GyroFragment.class);
+        // TODO: uncomment this to run our fragment
+        //tempMap.put(R.id.nav_patient, PatientFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
 
         EXTENSION_TO_APP_TYPE= new HashMap<>();
