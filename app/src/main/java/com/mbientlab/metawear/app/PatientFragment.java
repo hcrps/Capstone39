@@ -64,7 +64,7 @@ import java.util.Locale;
  */
 
 public class PatientFragment extends SensorFragment {
-    private static final float SAMPLING_PERIOD = 1/100f;
+    private static final float SAMPLING_PERIOD = 1 / 100f;
 
     private final ArrayList<Entry> x0 = new ArrayList<>(), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;
@@ -121,7 +121,7 @@ public class PatientFragment extends SensorFragment {
                 if (position == 0) {
                     leftAxis.setAxisMaxValue(1.f);
                     leftAxis.setAxisMinValue(-1.f);
-                } else  {
+                } else {
                     leftAxis.setAxisMaxValue(360f);
                     leftAxis.setAxisMinValue(-360f);
                 }
@@ -135,7 +135,7 @@ public class PatientFragment extends SensorFragment {
             }
         });
 
-        ArrayAdapter<CharSequence> spinnerAdapter= ArrayAdapter.createFromResource(getContext(), R.array.values_fusion_data, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.values_fusion_data, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         fusionModeSelection.setAdapter(spinnerAdapter);
     }
@@ -182,26 +182,26 @@ public class PatientFragment extends SensorFragment {
 
                 //this is new code added by Janelle to save the data into a circular array
                 //this for loop shift all the data along in the array before adding a new data point
-                for(int i = (capacity - 1); i > 0; i--){
-                    pitch_data[i] = pitch_data[i-1];
-                    roll_data[i] = roll_data[i-1];
-                    yaw_data[i] = yaw_data [i-1];
+                for (int i = (capacity - 1); i > 0; i--) {
+                    pitch_data[i] = pitch_data[i - 1];
+                    roll_data[i] = roll_data[i - 1];
+                    yaw_data[i] = yaw_data[i - 1];
                 }
 
                 //store each angle as the first entry in the array and flip data
                 pitch_data[0] = angles.pitch();
                 pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
-                if (pitch_flipped == 1){
+                if (pitch_flipped == 1) {
                     pitch_data[0] = pitch_data[0] + 360;
                 }
 
                 roll_data[0] = angles.roll();
-                if (roll_flipped == 1){
+                if (roll_flipped == 1) {
                     roll_data[0] = roll_data[0] + 360;
                 }
 
                 yaw_data[0] = angles.yaw();
-                if (yaw_flipped == 1){
+                if (yaw_flipped == 1) {
                     yaw_data[0] = yaw_data[0] + 360;
                 }
 
@@ -271,7 +271,7 @@ public class PatientFragment extends SensorFragment {
             x3.clear();
         }
 
-        ArrayList<LineDataSet> spinAxisData= new ArrayList<>();
+        ArrayList<LineDataSet> spinAxisData = new ArrayList<>();
         spinAxisData.add(new LineDataSet(x0, srcIndex == 0 ? "w" : "heading"));
         spinAxisData.get(0).setColor(Color.BLACK);
         spinAxisData.get(0).setDrawCircles(false);
@@ -288,8 +288,8 @@ public class PatientFragment extends SensorFragment {
         spinAxisData.get(3).setColor(Color.BLUE);
         spinAxisData.get(3).setDrawCircles(false);
 
-        LineData data= new LineData(chartXValues);
-        for(LineDataSet set: spinAxisData) {
+        LineData data = new LineData(chartXValues);
+        for (LineDataSet set : spinAxisData) {
             data.addDataSet(set);
         }
         data.setDrawValues(false);
@@ -307,7 +307,7 @@ public class PatientFragment extends SensorFragment {
     }
 
 
-    private static float[] Convolution(float[] b, float[] data){
+    private static float[] Convolution(float[] b, float[] data) {
         int sizeofb = b.length; //the size of b
         int sizeofdata = data.length; //the number of data points we are storing
         int numrows = (sizeofdata + sizeofb) - 1; //the number of rows depends on the number of delays
@@ -317,23 +317,23 @@ public class PatientFragment extends SensorFragment {
         int c = 0; //used to index columns
 
 
-        for(r = 0; r < sizeofdata; r++){ //add zeros before the first data point and shift along
-            for(c = 0 ; ((c <= r) && (c < sizeofb)); c++){
-                multi[r][c] = data[r-c];
+        for (r = 0; r < sizeofdata; r++) { //add zeros before the first data point and shift along
+            for (c = 0; ((c <= r) && (c < sizeofb)); c++) {
+                multi[r][c] = data[r - c];
             }
         }
 
-        for(r= (sizeofdata - 1); r < numrows; r++){ //add zeros once the last data point has moved through
-            for(c = 0; c < sizeofb; c++){
-                if((r-c) < sizeofdata){
-                    multi[r][c] = data[r-c];
+        for (r = (sizeofdata - 1); r < numrows; r++) { //add zeros once the last data point has moved through
+            for (c = 0; c < sizeofb; c++) {
+                if ((r - c) < sizeofdata) {
+                    multi[r][c] = data[r - c];
                 }
             }
         }
 
-        for (r = 0; r < numrows; r++){ //multiply each row by b and sum
+        for (r = 0; r < numrows; r++) { //multiply each row by b and sum
             float sum = 0;
-            for(c = 0; c < sizeofb; c++){
+            for (c = 0; c < sizeofb; c++) {
                 sum = (multi[r][c] * b[c]) + sum;
             }
             y[r] = sum;
@@ -354,27 +354,25 @@ public class PatientFragment extends SensorFragment {
         return y;
 
     }
-}
 
-    private static int FlipCheck(float[] data, int alreadyflipped){
+    private static int FlipCheck(float[] data, int alreadyflipped) {
         int i = 0;
         int flip;
-        float lastval = data[i+1];
+        float lastval = data[i + 1];
         float currval = data[i];
 
-        if (alreadyflipped == 1){
-            if((lastval < 50) && (currval > 300))
+        if (alreadyflipped == 1) {
+            if ((lastval < 50) && (currval > 300))
                 flip = 0;
             else
                 flip = 1;
-        }
-        else {
+        } else {
             if ((lastval > 300) && (currval < 50)) {
                 flip = 1;
-            }
-            else
+            } else
                 flip = 0;
         }
 
         return flip;
     }
+}
