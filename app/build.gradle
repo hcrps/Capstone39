@@ -32,13 +32,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         applicationId "com.mbientlab.metawear.app"
         minSdkVersion 18
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 22
         versionName "3.5.26"
 

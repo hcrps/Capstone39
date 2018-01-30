@@ -70,6 +70,37 @@ public class PatientFragment extends SensorFragment {
     private SensorFusionBosch sensorFusion;
     private int srcIndex = 0;
 
+    //this are new definitions added by Janelle
+    //private int index = 0; //used to index the circular arrays
+    private int capacity = 100; //this is the maximum number of entries we will have in the circular arrays
+
+    private int pitch_flipped = 0; //set to 1 when the data is flipped
+    private int roll_flipped = 0; //set to 1 when the data is flipped
+    private int yaw_flipped = 0; //set to 1 when the data is flipped
+
+    public float[] pitch_data = new float[capacity];
+    public float[] roll_data = new float[capacity];
+    public float[] yaw_data = new float[capacity];
+
+    public float[] pitch_b = {};
+    public float[] roll_b = {};
+    public float[] yaw_b = {};
+
+    int sizeofpitchb = pitch_b.length;
+    int sizeofpitchdata = pitch_data.length;
+    int numpitchrows = (sizeofpitchdata + sizeofpitchb) - 1;
+    float[] pitch_filtered = new float[numpitchrows];
+
+    int sizeofrollb = roll_b.length;
+    int sizeofrolldata = roll_data.length;
+    int numrollrows = (sizeofrolldata + sizeofrollb) - 1;
+    float[] roll_filtered = new float[numrollrows];
+
+    int sizeofyawb = yaw_b.length;
+    int sizeofyawdata = yaw_data.length;
+    int numyawrows = (sizeofyawdata + sizeofyawb) - 1;
+    float[] yaw_filtered = new float[numyawrows];
+
     public PatientFragment() {
         super(R.string.navigation_fragment_sensor_fusion, R.layout.fragment_patient, -1f, 1f);
     }
@@ -148,6 +179,43 @@ public class PatientFragment extends SensorFragment {
                 chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
                 chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
                 chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
+
+                //this is new code added by Janelle to save the data into a circular array
+                //this for loop shift all the data along in the array before adding a new data point
+                for(int i = (capacity - 1); i > 0; i--){
+                    pitch_data[i] = pitch_data[i-1];
+                    roll_data[i] = roll_data[i-1];
+                    yaw_data[i] = yaw_data [i-1];
+                }
+
+                //store each angle as the first entry in the array and flip data
+                pitch_data[0] = angles.pitch();
+                pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
+                if (pitch_flipped == 1){
+                    pitch_data[0] = pitch_data[0] + 360;
+                }
+
+                roll_data[0] = angles.roll();
+                if (roll_flipped == 1){
+                    roll_data[0] = roll_data[0] + 360;
+                }
+
+                yaw_data[0] = angles.yaw();
+                if (yaw_flipped == 1){
+                    yaw_data[0] = yaw_data[0] + 360;
+                }
+
+                //call the Convolution function
+                pitch_filtered = Convolution(pitch_b, pitch_data);
+                roll_filtered = Convolution(roll_b, roll_data);
+                yaw_filtered = Convolution(yaw_b, yaw_data);
+
+                //this just adds the new point at the next slot in the array, not the first
+                /*index++;
+                if (index == capacity)
+                    index = 0;*/
+
+                //the new code ends here
 
                 sampleCount++;
 
@@ -237,4 +305,76 @@ public class PatientFragment extends SensorFragment {
     protected void fillHelpOptionAdapter(HelpOptionAdapter adapter) {
         adapter.add(new HelpOption(R.string.config_name_sensor_fusion_data, R.string.config_desc_sensor_fusion_data));
     }
+
+
+    private static float[] Convolution(float[] b, float[] data){
+        int sizeofb = b.length; //the size of b
+        int sizeofdata = data.length; //the number of data points we are storing
+        int numrows = (sizeofdata + sizeofb) - 1; //the number of rows depends on the number of delays
+        float[][] multi = new float[numrows][3]; //a 2-d matrix to store a matrix with 0s for convolution
+        float[] y = new float[numrows];
+        int r = 0; //used to index rows
+        int c = 0; //used to index columns
+
+
+        for(r = 0; r < sizeofdata; r++){ //add zeros before the first data point and shift along
+            for(c = 0 ; ((c <= r) && (c < sizeofb)); c++){
+                multi[r][c] = data[r-c];
+            }
+        }
+
+        for(r= (sizeofdata - 1); r < numrows; r++){ //add zeros once the last data point has moved through
+            for(c = 0; c < sizeofb; c++){
+                if((r-c) < sizeofdata){
+                    multi[r][c] = data[r-c];
+                }
+            }
+        }
+
+        for (r = 0; r < numrows; r++){ //multiply each row by b and sum
+            float sum = 0;
+            for(c = 0; c < sizeofb; c++){
+                sum = (multi[r][c] * b[c]) + sum;
+            }
+            y[r] = sum;
+        }
+
+        /*for(r = 0; r < 7; r++){
+            for(c = 0; c < 3; c++){
+                System.out.println(multi[r][c]);
+            }
+        }
+
+        System.out.println(" ________________ ");
+
+        for(r=0; r < 7; r++){
+            System.out.println(y[r]);
+        } */
+
+        return y;
+
+    }
 }
+
+    private static int FlipCheck(float[] data, int alreadyflipped){
+        int i = 0;
+        int flip;
+        float lastval = data[i+1];
+        float currval = data[i];
+
+        if (alreadyflipped == 1){
+            if((lastval < 50) && (currval > 300))
+                flip = 0;
+            else
+                flip = 1;
+        }
+        else {
+            if ((lastval > 300) && (currval < 50)) {
+                flip = 1;
+            }
+            else
+                flip = 0;
+        }
+
+        return flip;
+    }
