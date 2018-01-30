@@ -148,86 +148,63 @@ public class PatientFragment extends SensorFragment {
                 .gyroRange(GyroRange.GR_2000DPS)
                 .commit();
 
-        if (srcIndex == 0) {
-            sensorFusion.quaternion().addRouteAsync(source -> source.stream((data, env) -> {
-                LineData chartData = chart.getData();
+        sensorFusion.eulerAngles().addRouteAsync(source -> source.stream((data, env) -> {
+            LineData chartData = chart.getData();
 
-                final Quaternion quaternion = data.value(Quaternion.class);
-                chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-                chartData.addEntry(new Entry(quaternion.w(), sampleCount), 0);
-                chartData.addEntry(new Entry(quaternion.x(), sampleCount), 1);
-                chartData.addEntry(new Entry(quaternion.y(), sampleCount), 2);
-                chartData.addEntry(new Entry(quaternion.z(), sampleCount), 3);
+            final EulerAngles angles = data.value(EulerAngles.class);
+            chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
+            chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
+            chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
+            chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
+            chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
 
-                sampleCount++;
+            //this is new code added by Janelle to save the data into a circular array
+            //this for loop shift all the data along in the array before adding a new data point
+            for (int i = (capacity - 1); i > 0; i--) {
+                pitch_data[i] = pitch_data[i - 1];
+                roll_data[i] = roll_data[i - 1];
+                yaw_data[i] = yaw_data[i - 1];
+            }
 
-                updateChart();
-            })).continueWith(task -> {
-                streamRoute = task.getResult();
-                sensorFusion.quaternion().start();
-                sensorFusion.start();
+            //store each angle as the first entry in the array and flip data
+            pitch_data[0] = angles.pitch();
+            pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
+            if (pitch_flipped == 1) {
+                pitch_data[0] = pitch_data[0] + 360;
+            }
 
-                return null;
-            });
-        } else {
-            sensorFusion.eulerAngles().addRouteAsync(source -> source.stream((data, env) -> {
-                LineData chartData = chart.getData();
+            roll_data[0] = angles.roll();
+            if (roll_flipped == 1) {
+                roll_data[0] = roll_data[0] + 360;
+            }
 
-                final EulerAngles angles = data.value(EulerAngles.class);
-                chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-                chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
-                chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
-                chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
-                chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
+            yaw_data[0] = angles.yaw();
+            if (yaw_flipped == 1) {
+                yaw_data[0] = yaw_data[0] + 360;
+            }
 
-                //this is new code added by Janelle to save the data into a circular array
-                //this for loop shift all the data along in the array before adding a new data point
-                for (int i = (capacity - 1); i > 0; i--) {
-                    pitch_data[i] = pitch_data[i - 1];
-                    roll_data[i] = roll_data[i - 1];
-                    yaw_data[i] = yaw_data[i - 1];
-                }
+            //call the Convolution function
+            pitch_filtered = Convolution(pitch_b, pitch_data);
+            roll_filtered = Convolution(roll_b, roll_data);
+            yaw_filtered = Convolution(yaw_b, yaw_data);
 
-                //store each angle as the first entry in the array and flip data
-                pitch_data[0] = angles.pitch();
-                pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
-                if (pitch_flipped == 1) {
-                    pitch_data[0] = pitch_data[0] + 360;
-                }
+            //this just adds the new point at the next slot in the array, not the first
+            /*index++;
+            if (index == capacity)
+                index = 0;*/
 
-                roll_data[0] = angles.roll();
-                if (roll_flipped == 1) {
-                    roll_data[0] = roll_data[0] + 360;
-                }
+            //the new code ends here
 
-                yaw_data[0] = angles.yaw();
-                if (yaw_flipped == 1) {
-                    yaw_data[0] = yaw_data[0] + 360;
-                }
+            sampleCount++;
 
-                //call the Convolution function
-                pitch_filtered = Convolution(pitch_b, pitch_data);
-                roll_filtered = Convolution(roll_b, roll_data);
-                yaw_filtered = Convolution(yaw_b, yaw_data);
+            updateChart();
+        })).continueWith(task -> {
+            streamRoute = task.getResult();
+            sensorFusion.eulerAngles().start();
+            sensorFusion.start();
 
-                //this just adds the new point at the next slot in the array, not the first
-                /*index++;
-                if (index == capacity)
-                    index = 0;*/
-
-                //the new code ends here
-
-                sampleCount++;
-
-                updateChart();
-            })).continueWith(task -> {
-                streamRoute = task.getResult();
-                sensorFusion.eulerAngles().start();
-                sensorFusion.start();
-
-                return null;
-            });
-        }
+            return null;
+        });
     }
 
     @Override
