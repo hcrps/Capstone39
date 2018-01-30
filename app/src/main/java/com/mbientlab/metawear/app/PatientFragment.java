@@ -73,6 +73,11 @@ public class PatientFragment extends SensorFragment {
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
     private int capacity = 100; //this is the maximum number of entries we will have in the circular arrays
+
+    private int pitch_flipped = 0; //set to 1 when the data is flipped
+    private int roll_flipped = 0; //set to 1 when the data is flipped
+    private int yaw_flipped = 0; //set to 1 when the data is flipped
+
     public float[] pitch_data = new float[capacity];
     public float[] roll_data = new float[capacity];
     public float[] yaw_data = new float[capacity];
@@ -183,10 +188,22 @@ public class PatientFragment extends SensorFragment {
                     yaw_data[i] = yaw_data [i-1];
                 }
 
-                //store each angle as the first entry in the array
+                //store each angle as the first entry in the array and flip data
                 pitch_data[0] = angles.pitch();
+                pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
+                if (pitch_flipped == 1){
+                    pitch_data[0] = pitch_data[0] + 360;
+                }
+
                 roll_data[0] = angles.roll();
+                if (roll_flipped == 1){
+                    roll_data[0] = roll_data[0] + 360;
+                }
+
                 yaw_data[0] = angles.yaw();
+                if (yaw_flipped == 1){
+                    yaw_data[0] = yaw_data[0] + 360;
+                }
 
                 //call the Convolution function
                 pitch_filtered = Convolution(pitch_b, pitch_data);
@@ -338,3 +355,26 @@ public class PatientFragment extends SensorFragment {
 
     }
 }
+
+    private static int FlipCheck(float[] data, int alreadyflipped){
+        int i = 0;
+        int flip;
+        float lastval = data[i+1];
+        float currval = data[i];
+
+        if (alreadyflipped == 1){
+            if((lastval < 50) && (currval > 300))
+                flip = 0;
+            else
+                flip = 1;
+        }
+        else {
+            if ((lastval > 300) && (currval < 50)) {
+                flip = 1;
+            }
+            else
+                flip = 0;
+        }
+
+        return flip;
+    }
