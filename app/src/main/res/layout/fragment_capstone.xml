@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Kahlan
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/component_sampling_control" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/scrollView" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!--<TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/label_rssi"
+                        android:textColor="@color/action_text"
+                        android:id="@+id/board_rssi_text"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:gravity="center_horizontal"
+                        android:id="@+id/board_rssi_value"
+                        android:layout_weight="1"/>
+                </TableRow>
+            </TableLayout>
+            -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/label_device_section_switch"
+                android:id="@+id/textView4"
+                android:layout_gravity="center_horizontal" />
+
+            <RadioGroup android:id="@+id/switch_radio"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center" >
+
+                    <RadioButton android:id="@+id/switch_pressed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_switch_pressed"
+                        android:checked="false" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center" >
+
+                    <RadioButton android:id="@+id/switch_released"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_switch_released"
+                        android:checked="false" />
+                </LinearLayout>
+            </RadioGroup>
+
+            <View
+                style="@style/HorizontalLine"
+                android:background="@android:color/darker_gray" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/label_device_section_led"
+                android:id="@+id/textView"
+                android:layout_gravity="center_horizontal" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="?android:attr/buttonBarStyle" >
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_led_red_on"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:id="@+id/led_red" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_led_green_on"
+                    android:textColor="@android:color/holo_green_dark"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id="@+id/led_green" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_led_blue_on"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:layout_weight="1"
+                    android:id="@+id/led_blue" />
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="@string/label_led_off"
+                android:id="@+id/led_stop" />
+
+            <include layout="@layout/layout_two_button" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/config_option_title" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/config_option_spinner" />
+
+            <include layout="@layout/component_line_chart" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+
+<!--<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin" >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/component_sampling_control" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/label_rssi"
+                    android:textColor="@color/action_text"
+                    android:id="@+id/board_rssi_text"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:gravity="center_horizontal"
+                    android:id="@+id/board_rssi_value"
+                    android:layout_weight="1"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include layout="@layout/layout_two_button" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/config_option_title" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/config_option_spinner" />
+
+            <include layout="@layout/component_line_chart" />
+
+        </LinearLayout>
+
+        <View
+            style="@style/HorizontalLine"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/label_device_section_switch"
+            android:id="@+id/textView4"
+            android:layout_gravity="center_horizontal" />
+
+        <RadioGroup android:id="@+id/switch_radio_group"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center" >
+
+                <RadioButton android:id="@+id/switch_radio_pressed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_switch_pressed"
+                    android:checked="false" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center" >
+
+                <RadioButton android:id="@+id/switch_radio_released"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_switch_released"
+                    android:checked="false" />
+            </LinearLayout>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/label_device_section_led"
+            android:id="@+id/textView"
+            android:layout_gravity="center_horizontal" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="?android:attr/buttonBarStyle" >
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/label_led_red_on"
+                style="?android:attr/buttonBarButtonStyle"
+                android:textColor="@android:color/holo_red_dark"
+                android:id="@+id/led_red_on" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/label_led_green_on"
+                android:textColor="@android:color/holo_green_dark"
+                style="?android:attr/buttonBarButtonStyle"
+                android:id="@+id/led_green_on" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_led_blue_on"
+                style="?android:attr/buttonBarButtonStyle"
+                android:textColor="@android:color/holo_blue_dark"
+                android:layout_weight="1"
+                android:id="@+id/led_blue_on" />
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/buttonBarButtonStyle"
+            android:text="@string/label_led_off"
+            android:id="@+id/led_stop" />
+
+    </LinearLayout>
+
+</ScrollView>
+    -->

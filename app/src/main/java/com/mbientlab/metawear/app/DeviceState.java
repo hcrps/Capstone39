@@ -29,43 +29,24 @@
  * contact MbientLab Inc, at www.mbientlab.com.
  */
 
-apply plugin: 'com.android.application'
+package com.mbientlab.metawear.app;
 
-android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+import android.bluetooth.BluetoothDevice;
 
-    defaultConfig {
-        applicationId "com.mbientlab.metawear.app"
-        minSdkVersion 18
-        targetSdkVersion 27
-        versionCode 22
-        versionName "3.5.26"
+class DeviceState {
+    final BluetoothDevice btDevice;
+    String deviceOrientation;
+    boolean pressed, connecting;
 
-        jackOptions {
-            enabled true
-        }
+    DeviceState(BluetoothDevice btDevice) {
+        this.btDevice= btDevice;
+        this.deviceOrientation= null;
+        pressed= false;
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.mbientlab:metawear:3.1.0'
-    compile 'com.mbientlab.bletoolbox:scanner:0.2.3'
-    compile 'com.github.PhilJay:MPAndroidChart:v2.1.3'
-    compile 'no.nordicsemi.android:dfu:1.3.1'
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support:design:25.4.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:support-v4:25.4.0'
+    @Override
+    public boolean equals(Object obj) {
+        return (obj == this) ||
+                ((obj instanceof DeviceState) && btDevice.equals(((DeviceState) obj).btDevice));
+    }
 }
