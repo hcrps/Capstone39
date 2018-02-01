@@ -59,6 +59,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.TextView;
+
 /**
  * Created by kahlan on 01/24/2018.
  */
@@ -68,7 +73,6 @@ public class PatientFragment extends SensorFragment {
 
     private final ArrayList<Entry> x0 = new ArrayList<>(), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;
-    private int srcIndex = 0;
 
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
@@ -102,42 +106,21 @@ public class PatientFragment extends SensorFragment {
     float[] yaw_filtered = new float[numyawrows];
 
     public PatientFragment() {
-        super(R.string.navigation_fragment_sensor_fusion, R.layout.fragment_patient, -1f, 1f);
+        super(R.string.navigation_fragment_patient, R.layout.fragment_patientdata, -1f, 1f);
     }
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ((TextView) view.findViewById(R.id.config_option_title)).setText(R.string.config_name_sensor_fusion_data);
+        Intent intent = getActivity().getIntent();
+        ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.PATIENT_NAME));
 
-        Spinner fusionModeSelection = (Spinner) view.findViewById(R.id.config_option_spinner);
-        fusionModeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                srcIndex = position;
+        final YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setAxisMaxValue(360f);
+        leftAxis.setAxisMinValue(-360f);
 
-                final YAxis leftAxis = chart.getAxisLeft();
-                if (position == 0) {
-                    leftAxis.setAxisMaxValue(1.f);
-                    leftAxis.setAxisMinValue(-1.f);
-                } else {
-                    leftAxis.setAxisMaxValue(360f);
-                    leftAxis.setAxisMinValue(-360f);
-                }
-
-                refreshChart(false);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(getContext(), R.array.values_fusion_data, android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        fusionModeSelection.setAdapter(spinnerAdapter);
+        refreshChart(false);
     }
 
     @Override
@@ -214,7 +197,7 @@ public class PatientFragment extends SensorFragment {
 
     @Override
     protected String saveData() {
-        final String CSV_HEADER = (srcIndex == 0 ? String.format("time,w,x,y,z%n") : String.format("time,heading,pitch,roll,yaw%n"));
+        final String CSV_HEADER = String.format("time,heading,pitch,roll,yaw%n");
         String filename = String.format(Locale.US, "%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", getContext().getString(sensorResId), Calendar.getInstance());
 
         try {
@@ -249,19 +232,19 @@ public class PatientFragment extends SensorFragment {
         }
 
         ArrayList<LineDataSet> spinAxisData = new ArrayList<>();
-        spinAxisData.add(new LineDataSet(x0, srcIndex == 0 ? "w" : "heading"));
+        spinAxisData.add(new LineDataSet(x0, "heading"));
         spinAxisData.get(0).setColor(Color.BLACK);
         spinAxisData.get(0).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x1, srcIndex == 0 ? "x" : "pitch"));
+        spinAxisData.add(new LineDataSet(x1, "pitch"));
         spinAxisData.get(1).setColor(Color.RED);
         spinAxisData.get(1).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x2, srcIndex == 0 ? "y" : "roll"));
+        spinAxisData.add(new LineDataSet(x2, "roll"));
         spinAxisData.get(2).setColor(Color.GREEN);
         spinAxisData.get(2).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x3, srcIndex == 0 ? "z" : "yaw"));
+        spinAxisData.add(new LineDataSet(x3, "yaw"));
         spinAxisData.get(3).setColor(Color.BLUE);
         spinAxisData.get(3).setDrawCircles(false);
 
@@ -352,4 +335,5 @@ public class PatientFragment extends SensorFragment {
 
         return flip;
     }
+
 }
