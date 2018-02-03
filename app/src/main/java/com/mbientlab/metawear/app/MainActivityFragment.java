@@ -94,7 +94,6 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         getActivity().getApplicationContext().unbindService(this);
     }
 
