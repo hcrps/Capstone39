@@ -43,7 +43,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/status_device_name"/>
 
-    <include layout="@layout/layout_two_button" />
+    <!--<include layout="@layout/layout_two_button" />-->
 
     <!--<RadioGroup-->
         <!--android:id="@+id/status_button"-->

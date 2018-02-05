@@ -62,8 +62,11 @@ public class ConnectedDevicesAdapter extends ArrayAdapter<DeviceState> {
 //            viewHolder.connectingText= (TextView) convertView.findViewById(R.id.text_connecting);
 //            viewHolder.connectingProgress= (ProgressBar) convertView.findViewById(R.id.connecting_progress);
 
-            viewHolder.viewDataButton = (Button) convertView.findViewById(R.id.layout_two_button_right);
-            viewHolder.viewDataButton.setText(R.string.label_view_data);
+//            viewHolder.viewDataButton = (Button) convertView.findViewById(R.id.layout_two_button_right);
+//            viewHolder.viewDataButton.setOnClickListener(view1 -> {
+//                MainActivity.playNavigationActivity(position);
+//            });
+//            viewHolder.viewDataButton.setText(R.string.label_view_data);
 
             convertView.setTag(viewHolder);
         } else {
@@ -120,7 +123,7 @@ public class ConnectedDevicesAdapter extends ArrayAdapter<DeviceState> {
 
     private class ViewHolder {
         TextView deviceName;
-        Button viewDataButton;
+//        Button viewDataButton;
 //                , deviceAddress, deviceOrientation, connectingText, patientName;
 //        RadioGroup switchState;
 //        ProgressBar connectingProgress;
