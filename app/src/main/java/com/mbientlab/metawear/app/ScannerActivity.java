@@ -25,6 +25,7 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
     public static final int REQUEST_START_APP= 1;
     private final static UUID[] serviceUuids;
     public static final String EXTRA_DEVICE= "com.mbientlab.metawear.app.ScannerActivity.EXTRA_DEVICE";
+    public final static String EXTRA_PATIENT_NAME= "com.mbientlab.metawear.app.NavigationActivity.EXTRA_PATIENT_NAME";
 
     static {
         serviceUuids= new UUID[] {
@@ -75,12 +76,12 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case REQUEST_START_APP:
-                ((BleScannerFragment) getFragmentManager().findFragmentById(R.id.scanner_fragment)).startBleScan();
-                break;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
+//        switch(requestCode) {
+//            case REQUEST_START_APP:
+//                ((BleScannerFragment) getFragmentManager().findFragmentById(R.id.scanner_fragment)).startBleScan();
+//                break;
+//        }
+//        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -111,9 +112,13 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
                         runOnUiThread(connectDialog::dismiss);
                         Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
                         navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+                        Intent patientNameIntent = getIntent();
+                        String patient_name = patientNameIntent.getStringExtra(PatientName.EXTRA_PATIENT_NAME);
+                        navActivityIntent.putExtra(NavigationActivity.EXTRA_PATIENT_NAME, patient_name);
                         startActivityForResult(navActivityIntent, REQUEST_START_APP);
                         Intent result= new Intent();
                         result.putExtra(EXTRA_DEVICE, btDevice);
+                        result.putExtra(EXTRA_PATIENT_NAME, patient_name);
                         setResult(RESULT_OK, result);
                         finish();
                     }
@@ -139,5 +144,10 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
     @Override
     public long getScanDuration() {
         return 10000L;
+    }
+
+    public void onBackPressed(){
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }

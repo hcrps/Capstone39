@@ -13,7 +13,8 @@ import android.widget.EditText;
 
 public class PatientName extends AppCompatActivity {
     public static final int REQUEST_START_BLE_SCAN= 1;
-    public static final String PATIENT_NAME = "com.example.mbientlab.metawear.app.NAME";
+    public static final String EXTRA_DEVICE= "com.mbientlab.metawear.app.ScannerActivity.EXTRA_DEVICE";
+    public static final String EXTRA_PATIENT_NAME = "com.example.mbientlab.metawear.app.NAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,21 +38,29 @@ public class PatientName extends AppCompatActivity {
         Intent intent = new Intent(this, ScannerActivity.class);
         EditText editText = (EditText) findViewById(R.id.editText);
         String name = editText.getText().toString();
-        intent.putExtra(PATIENT_NAME, name);
+        intent.putExtra(EXTRA_PATIENT_NAME, name);
         startActivityForResult(intent,REQUEST_START_BLE_SCAN);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_START_BLE_SCAN:
-                BluetoothDevice selectedDevice= data.getParcelableExtra(ScannerActivity.EXTRA_DEVICE);
-                if (selectedDevice != null) {
-                    ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_activity_content)).addNewDevice(selectedDevice);
-                }
-
-                break;
+        if (resultCode != RESULT_CANCELED) {
+            switch (requestCode) {
+                case REQUEST_START_BLE_SCAN:
+                    Intent result = new Intent();
+                    BluetoothDevice btDevice = data.getParcelableExtra(ScannerActivity.EXTRA_DEVICE);
+                    BluetoothDevice patient_name = data.getParcelableExtra(ScannerActivity.EXTRA_PATIENT_NAME);
+                    result.putExtra(EXTRA_DEVICE, btDevice);
+                    result.putExtra(EXTRA_PATIENT_NAME, patient_name);
+                    setResult(RESULT_OK, result);
+                    finish();
+                    // BluetoothDevice selectedDevice= data.getParcelableExtra(ScannerActivity.EXTRA_DEVICE);
+                    // if (selectedDevice != null) {
+                    //      ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_activity_content)).addNewDevice(selectedDevice);
+                    // }
+                    // break;
+            }
         }
     }
 

@@ -10,6 +10,8 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 
 public class MainActivity extends AppCompatActivity {
+    public static final int REQUEST_START_BLE_SCAN= 1;
+    public static final String PATIENT_NAME = "com.example.mbientlab.metawear.app.NAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,20 +23,22 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, PatientName.class)));
 
+
+
         //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         //fab.setOnClickListener(view -> startActivityForResult(new Intent(MainActivity.this, ScannerActivity.class), REQUEST_START_BLE_SCAN));
     }
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        switch (requestCode) {
-//            case REQUEST_START_BLE_SCAN:
-//                BluetoothDevice selectedDevice= data.getParcelableExtra(ScannerActivity.EXTRA_DEVICE);
-//                if (selectedDevice != null) {
-//                    ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_activity_content)).addNewDevice(selectedDevice);
-//                }
-//                break;
-//        }
-//    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_START_BLE_SCAN:
+                BluetoothDevice selectedDevice= data.getParcelableExtra(ScannerActivity.EXTRA_DEVICE);
+                if (selectedDevice != null) {
+                    ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_activity_content)).addNewDevice(selectedDevice);
+                }
+                break;
+        }
+    }
 
 }

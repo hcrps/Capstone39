@@ -88,6 +88,7 @@ import static com.mbientlab.metawear.app.ScannerActivity.setConnInterval;
 
 public class NavigationActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ServiceConnection, FragmentBus, LoaderManager.LoaderCallbacks<Cursor> {
     public final static String EXTRA_BT_DEVICE= "com.mbientlab.metawear.app.NavigationActivity.EXTRA_BT_DEVICE";
+    public final static String EXTRA_PATIENT_NAME= "com.mbientlab.metawear.app.NavigationActivity.EXTRA_PATIENT_NAME";
 
     private static final int SELECT_FILE_REQ = 1, PERMISSION_REQUEST_READ_STORAGE= 2;
     private static final String EXTRA_URI = "uri", FRAGMENT_KEY= "com.mbientlab.metawear.app.NavigationActivity.FRAGMENT_KEY",
@@ -378,6 +379,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         }
 
         btDevice= getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
+
         getApplicationContext().bindService(new Intent(this, BtleService.class), this, BIND_AUTO_CREATE);
 
         DfuServiceListenerHelper.registerProgressListener(this, dfuProgressListener);
@@ -430,9 +432,13 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            mwBoard.disconnectAsync();
-            super.onBackPressed();
+        }
+        else {
+//            mwBoard.disconnectAsync();
+//            super.onBackPressed();
+            Intent result= new Intent();
+            setResult(RESULT_OK, result);
+            finish();
         }
     }
 
@@ -614,4 +620,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             }
         }
     }
+
+
 }
