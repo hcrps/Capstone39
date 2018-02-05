@@ -32,10 +32,13 @@
 package com.mbientlab.metawear.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -54,61 +57,73 @@ public class ConnectedDevicesAdapter extends ArrayAdapter<DeviceState> {
 
             viewHolder= new ViewHolder();
             viewHolder.deviceName= (TextView) convertView.findViewById(R.id.status_device_name);
-            viewHolder.deviceAddress= (TextView) convertView.findViewById(R.id.status_mac_address);
-            viewHolder.deviceOrientation= (TextView) convertView.findViewById(R.id.status_orientation);
-            viewHolder.switchState= (RadioGroup) convertView.findViewById(R.id.status_button);
-            viewHolder.connectingText= (TextView) convertView.findViewById(R.id.text_connecting);
-            viewHolder.connectingProgress= (ProgressBar) convertView.findViewById(R.id.connecting_progress);
+//            viewHolder.deviceOrientation= (TextView) convertView.findViewById(R.id.status_orientation);
+//            viewHolder.switchState= (RadioGroup) convertView.findViewById(R.id.status_button);
+//            viewHolder.connectingText= (TextView) convertView.findViewById(R.id.text_connecting);
+//            viewHolder.connectingProgress= (ProgressBar) convertView.findViewById(R.id.connecting_progress);
+
+            viewHolder.viewDataButton = (Button) convertView.findViewById(R.id.layout_two_button_right);
+            viewHolder.viewDataButton.setText(R.string.label_view_data);
 
             convertView.setTag(viewHolder);
         } else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
 
-        DeviceState state= getItem(position);
-        final String deviceName= state.btDevice.getName();
+        // DeviceState state= getItem(position);
+        // final String deviceName= state.btDevice.getName();
 
-        if (deviceName != null && deviceName.length() > 0) {
-            viewHolder.deviceName.setText(deviceName);
+
+        final String patientName = MainActivity.patient_name;
+
+        if(patientName != null && patientName.length() > 0){
+            viewHolder.deviceName.setText(patientName);
         } else {
             viewHolder.deviceName.setText(R.string.label_unknown_device);
         }
-        viewHolder.deviceAddress.setText(state.btDevice.getAddress());
 
-        if (state.connecting) {
-            viewHolder.connectingProgress.setVisibility(View.VISIBLE);
-            viewHolder.connectingText.setVisibility(View.VISIBLE);
-            viewHolder.deviceOrientation.setVisibility(View.GONE);
-            viewHolder.switchState.setVisibility(View.GONE);
-        } else {
-            viewHolder.deviceOrientation.setVisibility(View.VISIBLE);
-            viewHolder.switchState.setVisibility(View.VISIBLE);
-
-            if (state.deviceOrientation != null) {
-                viewHolder.deviceOrientation.setText(state.deviceOrientation);
-            }
-
-            if (state.pressed) {
-                viewHolder.switchState.check(R.id.switch_radio_pressed);
-                convertView.findViewById(R.id.switch_radio_pressed).setEnabled(true);
-                convertView.findViewById(R.id.switch_radio_released).setEnabled(false);
-            } else {
-                viewHolder.switchState.check(R.id.switch_radio_released);
-                convertView.findViewById(R.id.switch_radio_released).setEnabled(true);
-                convertView.findViewById(R.id.switch_radio_pressed).setEnabled(false);
-            }
-
-            viewHolder.connectingProgress.setVisibility(View.GONE);
-            viewHolder.connectingText.setVisibility(View.GONE);
-        }
+//        if (deviceName != null && deviceName.length() > 0) {
+//            viewHolder.deviceName.setText(deviceName);
+//        } else {
+//            viewHolder.deviceName.setText(R.string.label_unknown_device);
+//        }
+//
+//        if (state.connecting) {
+//            viewHolder.connectingProgress.setVisibility(View.VISIBLE);
+//            viewHolder.connectingText.setVisibility(View.VISIBLE);
+//            viewHolder.deviceOrientation.setVisibility(View.GONE);
+//            viewHolder.switchState.setVisibility(View.GONE);
+//        } else {
+//            viewHolder.deviceOrientation.setVisibility(View.VISIBLE);
+//            viewHolder.switchState.setVisibility(View.VISIBLE);
+//
+//            if (state.deviceOrientation != null) {
+//                viewHolder.deviceOrientation.setText(state.deviceOrientation);
+//            }
+//
+//            if (state.pressed) {
+//                viewHolder.switchState.check(R.id.switch_radio_pressed);
+//                convertView.findViewById(R.id.switch_radio_pressed).setEnabled(true);
+//                convertView.findViewById(R.id.switch_radio_released).setEnabled(false);
+//            } else {
+//                viewHolder.switchState.check(R.id.switch_radio_released);
+//                convertView.findViewById(R.id.switch_radio_released).setEnabled(true);
+//                convertView.findViewById(R.id.switch_radio_pressed).setEnabled(false);
+//            }
+//
+//            viewHolder.connectingProgress.setVisibility(View.GONE);
+//            viewHolder.connectingText.setVisibility(View.GONE);
+//        }
 
         return convertView;
     }
 
     private class ViewHolder {
-        TextView deviceName, deviceAddress, deviceOrientation, connectingText;
-        RadioGroup switchState;
-        ProgressBar connectingProgress;
+        TextView deviceName;
+        Button viewDataButton;
+//                , deviceAddress, deviceOrientation, connectingText, patientName;
+//        RadioGroup switchState;
+//        ProgressBar connectingProgress;
     }
 
     public void update(DeviceState newState) {

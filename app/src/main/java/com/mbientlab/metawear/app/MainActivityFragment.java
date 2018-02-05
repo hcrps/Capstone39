@@ -46,8 +46,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
+import com.github.mikephil.charting.data.Entry;
 import com.mbientlab.metawear.AsyncDataProducer;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
@@ -63,6 +65,7 @@ import com.mbientlab.metawear.module.AccelerometerMma8452q;
 import com.mbientlab.metawear.module.Debug;
 import com.mbientlab.metawear.module.Switch;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import bolts.Capture;
@@ -74,12 +77,14 @@ import bolts.Task;
  */
 public class MainActivityFragment extends Fragment implements ServiceConnection {
     private final HashMap<DeviceState, MetaWearBoard> stateToBoards;
+    private ArrayList<BluetoothDevice> btDevices;
     private BtleService.LocalBinder binder;
 
     private ConnectedDevicesAdapter connectedDevices= null;
 
     public MainActivityFragment() {
         stateToBoards = new HashMap<>();
+        btDevices = new ArrayList<>();
     }
 
     @Override
@@ -94,6 +99,7 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         getActivity().getApplicationContext().unbindService(this);
     }
 
@@ -105,6 +111,7 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
         newDeviceState.connecting= true;
         connectedDevices.add(newDeviceState);
         stateToBoards.put(newDeviceState, newBoard);
+        btDevices.add(btDevice);
 
         final Capture<AsyncDataProducer> orientCapture = new Capture<>();
         final Capture<Accelerometer> accelCapture = new Capture<>();
@@ -170,6 +177,13 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ListView connectedDevicesView= (ListView) view.findViewById(R.id.connected_devices);
         connectedDevicesView.setAdapter(connectedDevices);
+        connectedDevicesView.setOnItemClickListener(new ListView.OnItemClickListener() {
+            public void onItemClick(AdapterView arg0, View arg1, int arg2, long arg3){
+                Intent intent = new Intent(getActivity(), NavigationActivity.class);
+                intent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevices.get(arg2));
+                startActivity(intent);
+            }
+        });
         connectedDevicesView.setOnItemLongClickListener((parent, view1, position, id) -> {
             DeviceState current= connectedDevices.getItem(position);
             final MetaWearBoard selectedBoard= stateToBoards.get(current);
@@ -188,6 +202,7 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
             connectedDevices.remove(current);
             return false;
         });
+
     }
 
     @Override

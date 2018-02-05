@@ -42,6 +42,10 @@ public class PatientName extends AppCompatActivity {
         startActivityForResult(intent,REQUEST_START_BLE_SCAN);
     }
 
+    public void onBackPressed(){
+        setResult(RESULT_CANCELED);
+        finish();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -50,7 +54,7 @@ public class PatientName extends AppCompatActivity {
                 case REQUEST_START_BLE_SCAN:
                     Intent result = new Intent();
                     BluetoothDevice btDevice = data.getParcelableExtra(ScannerActivity.EXTRA_DEVICE);
-                    BluetoothDevice patient_name = data.getParcelableExtra(ScannerActivity.EXTRA_PATIENT_NAME);
+                    String patient_name = data.getStringExtra(ScannerActivity.EXTRA_PATIENT_NAME);
                     result.putExtra(EXTRA_DEVICE, btDevice);
                     result.putExtra(EXTRA_PATIENT_NAME, patient_name);
                     setResult(RESULT_OK, result);

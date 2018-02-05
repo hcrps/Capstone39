@@ -110,12 +110,12 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
                     if (!task.isCancelled()) {
                         setConnInterval(mwBoard.getModule(Settings.class));
                         runOnUiThread(connectDialog::dismiss);
-                        Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
-                        navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+//                        Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
+//                        navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
                         Intent patientNameIntent = getIntent();
                         String patient_name = patientNameIntent.getStringExtra(PatientName.EXTRA_PATIENT_NAME);
-                        navActivityIntent.putExtra(NavigationActivity.EXTRA_PATIENT_NAME, patient_name);
-                        startActivityForResult(navActivityIntent, REQUEST_START_APP);
+//                        navActivityIntent.putExtra(NavigationActivity.EXTRA_PATIENT_NAME, patient_name);
+//                        startActivityForResult(navActivityIntent, REQUEST_START_APP);
                         Intent result= new Intent();
                         result.putExtra(EXTRA_DEVICE, btDevice);
                         result.putExtra(EXTRA_PATIENT_NAME, patient_name);
