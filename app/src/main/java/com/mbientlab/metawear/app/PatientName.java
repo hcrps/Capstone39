@@ -50,6 +50,7 @@ public class PatientName extends AppCompatActivity {
                 if (selectedDevice != null) {
                     ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_activity_content)).addNewDevice(selectedDevice);
                 }
+
                 break;
         }
     }
