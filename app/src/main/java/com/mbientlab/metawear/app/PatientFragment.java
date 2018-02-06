@@ -174,11 +174,13 @@ public class PatientFragment extends SensorFragment {
             }
 
             roll_data[0] = angles.roll();
+            roll_flipped = FlipCheck(roll_data, roll_flipped);
             if (roll_flipped == 1) {
                 roll_data[0] = roll_data[0] + 360;
             }
 
             yaw_data[0] = angles.yaw();
+            yaw_flipped = FlipCheck(yaw_data, yaw_flipped);
             if (yaw_flipped == 1) {
                 yaw_data[0] = yaw_data[0] + 360;
             }
@@ -332,14 +334,14 @@ public class PatientFragment extends SensorFragment {
 
     }
 
-    private static int FlipCheck(float[] data, int alreadyflipped) {
+    public static int FlipCheck(float[] data, int alreadyflipped) {
         int i = 0;
         int flip;
         float lastval = data[i + 1];
         float currval = data[i];
 
         if (alreadyflipped == 1) {
-            if ((lastval < 50) && (currval > 300))
+            if ((lastval > 360) && (currval > 300))
                 flip = 0;
             else
                 flip = 1;
