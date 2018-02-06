@@ -32,6 +32,7 @@
 package com.mbientlab.metawear.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -58,20 +59,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.TextView;
-
 /**
  * Created by kahlan on 01/24/2018.
  */
 
-public class PatientFragment extends PatientFragmentBase {
+public class PatientFragmentTest extends SensorFragment {
     private static final float SAMPLING_PERIOD = 1 / 100f;
 
     private final ArrayList<Entry> x0 = new ArrayList<>(), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;
+    private int srcIndex = 0;
 
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
@@ -104,8 +101,8 @@ public class PatientFragment extends PatientFragmentBase {
     int numyawrows = (sizeofyawdata + sizeofyawb) - 1;
     float[] yaw_filtered = new float[numyawrows];
 
-    public PatientFragment() {
-        super(R.string.navigation_fragment_patient, R.layout.fragment_patientdata, -1f, 1f);
+    public PatientFragmentTest() {
+        super(R.string.navigation_fragment_patient, R.layout.fragment_patientdatatest, -1f, 1f);
     }
 
     @Override
@@ -115,11 +112,46 @@ public class PatientFragment extends PatientFragmentBase {
         Intent intent = getActivity().getIntent();
         ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.PATIENT_NAME));
 
-        final YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setAxisMaxValue(360f);
-        leftAxis.setAxisMinValue(-360f);
+        // Spinner configuration
+        ((TextView) view.findViewById(R.id.config_option_title)).setText(R.string.config_name_sensor_fusion_data);
 
-        refreshChart(false);
+        Spinner fusionModeSelection = (Spinner) view.findViewById(R.id.config_option_spinner);
+        fusionModeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                srcIndex = position;
+
+                final YAxis leftAxis = chart.getAxisLeft();
+                if (position == 0) {
+                    // raw euler angles
+                    leftAxis.setAxisMaxValue(360f);
+                    leftAxis.setAxisMinValue(-360f);
+                } else if (position == 1)  {
+                    // filtered euler angles
+                    leftAxis.setAxisMaxValue(360f);
+                    leftAxis.setAxisMinValue(-360f);
+                } else if (position == 2)  {
+                    // TODO
+                    leftAxis.setAxisMaxValue(360f);
+                    leftAxis.setAxisMinValue(-360f);
+                } else {
+                    // TODO
+                    leftAxis.setAxisMaxValue(360f);
+                    leftAxis.setAxisMinValue(-360f);
+                }
+
+                refreshChart(false);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        ArrayAdapter<CharSequence> spinnerAdapter= ArrayAdapter.createFromResource(getContext(), R.array.values_patient_data_test, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        fusionModeSelection.setAdapter(spinnerAdapter);
     }
 
     @Override
@@ -129,71 +161,120 @@ public class PatientFragment extends PatientFragmentBase {
                 .accRange(AccRange.AR_16G)
                 .gyroRange(GyroRange.GR_2000DPS)
                 .commit();
+        if (srcIndex == 0) {
+            sensorFusion.eulerAngles().addRouteAsync(source -> source.stream((data, env) -> {
+                LineData chartData = chart.getData();
 
-        sensorFusion.eulerAngles().addRouteAsync(source -> source.stream((data, env) -> {
-            LineData chartData = chart.getData();
+                final EulerAngles angles = data.value(EulerAngles.class);
+                chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
+                chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
+                chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
+                chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
+                chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
 
-            final EulerAngles angles = data.value(EulerAngles.class);
-            chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-            chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
-            chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
-            chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
-            chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
+                sampleCount++;
 
-            //this is new code added by Janelle to save the data into a circular array
-            //this for loop shift all the data along in the array before adding a new data point
-            for (int i = (capacity - 1); i > 0; i--) {
-                pitch_data[i] = pitch_data[i - 1];
-                roll_data[i] = roll_data[i - 1];
-                yaw_data[i] = yaw_data[i - 1];
-            }
+                updateChart();
+            })).continueWith(task -> {
+                streamRoute = task.getResult();
+                sensorFusion.eulerAngles().start();
+                sensorFusion.start();
 
-            //store each angle as the first entry in the array and flip data
-            pitch_data[0] = angles.pitch();
-            pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
-            if (pitch_flipped == 1) {
-                pitch_data[0] = pitch_data[0] + 360;
-            }
+                return null;
+            });
+        } else if (srcIndex == 1){
+            sensorFusion.eulerAngles().addRouteAsync(source -> source.stream((data, env) -> {
+                LineData chartData = chart.getData();
 
-            roll_data[0] = angles.roll();
-            roll_flipped = FlipCheck(roll_data, roll_flipped);
-            if (roll_flipped == 1) {
-                roll_data[0] = roll_data[0] + 360;
-            }
+                final EulerAngles angles = data.value(EulerAngles.class);
+                chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
+                chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
+                chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
+                chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
+                chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
 
-            yaw_data[0] = angles.yaw();
-            yaw_flipped = FlipCheck(yaw_data, yaw_flipped);
-            if (yaw_flipped == 1) {
-                yaw_data[0] = yaw_data[0] + 360;
-            }
+                //this is new code added by Janelle to save the data into a circular array
+                //this for loop shift all the data along in the array before adding a new data point
+                for (int i = (capacity - 1); i > 0; i--) {
+                    pitch_data[i] = pitch_data[i - 1];
+                    roll_data[i] = roll_data[i - 1];
+                    yaw_data[i] = yaw_data[i - 1];
+                }
 
-            //call the Convolution function
-            pitch_filtered = Convolution(pitch_b, pitch_data);
-            roll_filtered = Convolution(roll_b, roll_data);
-            yaw_filtered = Convolution(yaw_b, yaw_data);
+                //store each angle as the first entry in the array and flip data
+                pitch_data[0] = angles.pitch();
+                pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
+                if (pitch_flipped == 1) {
+                    pitch_data[0] = pitch_data[0] + 360;
+                }
 
-            //this just adds the new point at the next slot in the array, not the first
-            /*index++;
-            if (index == capacity)
-                index = 0;*/
+                roll_data[0] = angles.roll();
+                if (roll_flipped == 1) {
+                    roll_data[0] = roll_data[0] + 360;
+                }
 
-            //the new code ends here
+                yaw_data[0] = angles.yaw();
+                if (yaw_flipped == 1) {
+                    yaw_data[0] = yaw_data[0] + 360;
+                }
 
-            sampleCount++;
+                //call the Convolution function
+                pitch_filtered = Convolution(pitch_b, pitch_data);
+                roll_filtered = Convolution(roll_b, roll_data);
+                yaw_filtered = Convolution(yaw_b, yaw_data);
 
-            updateChart();
-        })).continueWith(task -> {
-            streamRoute = task.getResult();
-            sensorFusion.eulerAngles().start();
-            sensorFusion.start();
+                //this just adds the new point at the next slot in the array, not the first
+                /*index++;
+                if (index == capacity)
+                    index = 0;*/
 
-            return null;
-        });
+                //the new code ends here
+
+                sampleCount++;
+
+                updateChart();
+            })).continueWith(task -> {
+                streamRoute = task.getResult();
+                sensorFusion.eulerAngles().start();
+                sensorFusion.start();
+
+                return null;
+            });
+        } else if (srcIndex == 2){
+
+        } else {
+
+        }
     }
 
     @Override
     protected void clean() {
         sensorFusion.stop();
+    }
+
+    @Override
+    protected String saveData() {
+        final String CSV_HEADER = String.format("time,heading,pitch,roll,yaw%n");
+        String filename = String.format(Locale.US, "%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", getContext().getString(sensorResId), Calendar.getInstance());
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+            fos.write(CSV_HEADER.getBytes());
+
+            LineData data = chart.getLineData();
+            LineDataSet x0DataSet = data.getDataSetByIndex(0), x1DataSet = data.getDataSetByIndex(1),
+                    x2DataSet = data.getDataSetByIndex(2), x3DataSet = data.getDataSetByIndex(3);
+            for (int i = 0; i < data.getXValCount(); i++) {
+                fos.write(String.format(Locale.US, "%.3f,%.3f,%.3f,%.3f,%.3f%n", (i * SAMPLING_PERIOD),
+                        x0DataSet.getEntryForXIndex(i).getVal(), x1DataSet.getEntryForXIndex(i).getVal(),
+                        x2DataSet.getEntryForXIndex(i).getVal(), x3DataSet.getEntryForXIndex(i).getVal()).getBytes());
+            }
+            fos.close();
+            return filename;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -291,14 +372,14 @@ public class PatientFragment extends PatientFragmentBase {
 
     }
 
-    public static int FlipCheck(float[] data, int alreadyflipped) {
+    private static int FlipCheck(float[] data, int alreadyflipped) {
         int i = 0;
         int flip;
         float lastval = data[i + 1];
         float currval = data[i];
 
         if (alreadyflipped == 1) {
-            if ((lastval > 360) && (currval > 300))
+            if ((lastval < 50) && (currval > 300))
                 flip = 0;
             else
                 flip = 1;
