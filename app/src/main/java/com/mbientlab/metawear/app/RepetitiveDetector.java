@@ -89,4 +89,38 @@ public class RepetitiveDetector {
         }
         return minArray;
     }
+
+    public double[][] characterizeReal(double[] arr, boolean flag) {
+        int len = arr.length;
+        double[][] max = new double[2][len];
+        double[][] min = new double[2][len];
+        for (int i = 2; i < len-2; ++i) {
+            double leading = 0;
+            double following = 0;
+            leading = arr[i+1] - arr[i];
+            following = arr[i] - arr[i-1];
+
+            if(leading<0 && following>0){
+                double leading2 = arr[i+2] - arr[i+1];
+                if(leading2<0){
+
+                    max[0][i]=arr[i];
+                    max[1][i]=i;
+                }
+            }
+            else if(following<0 && leading>0){
+                double following2 = arr[i-1] - arr[i-2];
+                if(following2<0){
+                    min[0][i]=arr[i];
+                    min[1][i]=i;
+                }
+            }
+        }
+        if(flag){
+            return min;
+        }
+        else{
+            return max;
+        }
+    }
 }
