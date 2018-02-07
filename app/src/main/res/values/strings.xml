@@ -270,6 +270,7 @@
     <string name="label_neopixel_rotate">Rotate</string>
     <string name="label_neopixel_stop">Stop</string>
     <string name="label_unknown_device">Unknown Device</string>
+    <string name="label_no_name">Unknown Patient</string>
     <string name="label_edit">Edit</string>
     <string name="label_enable">Enable</string>
     <string name="label_disable">Disable</string>

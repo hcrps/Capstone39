@@ -68,7 +68,8 @@ import android.widget.TextView;
  */
 
 public class PatientFragment extends PatientFragmentBase {
-    private static final float SAMPLING_PERIOD = 1 / 100f;
+//    private static final float SAMPLING_PERIOD = 1 / 100f;
+    private static final float SAMPLING_PERIOD = 1 / 2f;
 
     private final ArrayList<Entry> x0 = new ArrayList<>(), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;

@@ -82,7 +82,7 @@ public class ConnectedDevicesAdapter extends ArrayAdapter<DeviceState> {
         if(patientName != null && patientName.length() > 0){
             viewHolder.deviceName.setText(patientName);
         } else {
-            viewHolder.deviceName.setText(R.string.label_unknown_device);
+            viewHolder.deviceName.setText(R.string.label_no_name);
         }
 
 //        if (deviceName != null && deviceName.length() > 0) {

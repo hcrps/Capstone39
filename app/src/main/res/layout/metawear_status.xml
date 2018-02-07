@@ -43,6 +43,10 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/status_device_name"/>
 
+    <View
+        style="@style/HorizontalLine"
+        android:background="@android:color/darker_gray" />
+
     <!--<include layout="@layout/layout_two_button" />-->
 
     <!--<RadioGroup-->

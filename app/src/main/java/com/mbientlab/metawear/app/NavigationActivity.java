@@ -98,8 +98,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
     static {
         Map<Integer, Class<? extends ModuleFragmentBase>> tempMap= new LinkedHashMap<>();
-        //tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_home, HomeFragment.class);
+//        tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_sensor_fusion, SensorFusionFragment.class);
         tempMap.put(R.id.nav_patientdatatest, SensorFusionFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
@@ -374,6 +374,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
         if (savedInstanceState == null) {
             onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_home));
+//            onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_sensor_fusion));
+
         } else {
             currentFragment= getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_KEY);
         }
