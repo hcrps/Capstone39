@@ -22,8 +22,9 @@ import java.util.UUID;
 import bolts.Task;
 
 public class ScannerActivity extends AppCompatActivity implements ScannerCommunicationBus, ServiceConnection {
-    private final static UUID[] serviceUuids;
     public static final int REQUEST_START_APP= 1;
+    private final static UUID[] serviceUuids;
+    public static final String EXTRA_DEVICE= "com.mbientlab.metawear.app.ScannerActivity.EXTRA_DEVICE";
 
     static {
         serviceUuids= new UUID[] {
@@ -111,6 +112,10 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
                         Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
                         navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
                         startActivityForResult(navActivityIntent, REQUEST_START_APP);
+                        Intent result= new Intent();
+                        result.putExtra(EXTRA_DEVICE, btDevice);
+                        setResult(RESULT_OK, result);
+                        finish();
                     }
                     return null;
                 });

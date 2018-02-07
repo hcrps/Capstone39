@@ -97,22 +97,11 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     static {
         Map<Integer, Class<? extends ModuleFragmentBase>> tempMap= new LinkedHashMap<>();
         tempMap.put(R.id.nav_home, HomeFragment.class);
-        tempMap.put(R.id.nav_accelerometer, AccelerometerFragment.class);
-        tempMap.put(R.id.nav_barometer, BarometerFragment.class);
-        tempMap.put(R.id.nav_color_detector, ColorDetectorFragment.class);
-        tempMap.put(R.id.nav_gpio, GpioFragment.class);
-        tempMap.put(R.id.nav_gyro, GyroFragment.class);
-        tempMap.put(R.id.nav_haptic, HapticFragment.class);
-        tempMap.put(R.id.nav_humidity, HumidityFragment.class);
-        tempMap.put(R.id.nav_ibeacon, IBeaconFragment.class);
-        tempMap.put(R.id.nav_i2c, I2CFragment.class);
-        tempMap.put(R.id.nav_light, AmbientLightFragment.class);
-        tempMap.put(R.id.nav_magnetometer, MagnetometerFragment.class);
-        tempMap.put(R.id.nav_neopixel, NeoPixelFragment.class);
-        tempMap.put(R.id.nav_proximity, ProximityFragment.class);
         tempMap.put(R.id.nav_sensor_fusion, SensorFusionFragment.class);
-        tempMap.put(R.id.nav_settings, SettingsFragment.class);
-        tempMap.put(R.id.nav_temperature, TemperatureFragment.class);
+        tempMap.put(R.id.nav_capstone, CapstoneSensorDebugFragment.class);
+        tempMap.put(R.id.nav_gyro, GyroFragment.class);
+        // TODO: uncomment this to run our fragment
+        //tempMap.put(R.id.nav_patient, PatientFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
 
         EXTENSION_TO_APP_TYPE= new HashMap<>();
@@ -373,7 +362,10 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(view -> ((ModuleFragmentBase) currentFragment).showHelpDialog());
+        // kahlan: added check
+        if (currentFragment != null) {
+            fab.setOnClickListener(view -> ((ModuleFragmentBase) currentFragment).showHelpDialog());
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -488,6 +480,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
                 }
 
                 finish();
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.action_manual_dfu:
                 if (checkLocationPermission()) {
