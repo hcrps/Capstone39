@@ -61,6 +61,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.android.BtleService;
@@ -87,6 +88,7 @@ import static com.mbientlab.metawear.app.ScannerActivity.setConnInterval;
 
 public class NavigationActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ServiceConnection, FragmentBus, LoaderManager.LoaderCallbacks<Cursor> {
     public final static String EXTRA_BT_DEVICE= "com.mbientlab.metawear.app.NavigationActivity.EXTRA_BT_DEVICE";
+    public final static String EXTRA_PATIENT_NAME= "com.mbientlab.metawear.app.NavigationActivity.EXTRA_PATIENT_NAME";
 
     private static final int SELECT_FILE_REQ = 1, PERMISSION_REQUEST_READ_STORAGE= 2;
     private static final String EXTRA_URI = "uri", FRAGMENT_KEY= "com.mbientlab.metawear.app.NavigationActivity.FRAGMENT_KEY",
@@ -96,12 +98,10 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
     static {
         Map<Integer, Class<? extends ModuleFragmentBase>> tempMap= new LinkedHashMap<>();
+        //tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_sensor_fusion, SensorFusionFragment.class);
-        tempMap.put(R.id.nav_capstone, CapstoneSensorDebugFragment.class);
-        tempMap.put(R.id.nav_gyro, GyroFragment.class);
-        // TODO: uncomment this to run our fragment
-        //tempMap.put(R.id.nav_patient, PatientFragment.class);
+        tempMap.put(R.id.nav_patientdatatest, SensorFusionFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
 
         EXTENSION_TO_APP_TYPE= new HashMap<>();
@@ -361,11 +361,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        // kahlan: added check
-        if (currentFragment != null) {
-            fab.setOnClickListener(view -> ((ModuleFragmentBase) currentFragment).showHelpDialog());
-        }
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(view -> ((ModuleFragmentBase) currentFragment).showHelpDialog());*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -382,6 +379,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         }
 
         btDevice= getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
+
         getApplicationContext().bindService(new Intent(this, BtleService.class), this, BIND_AUTO_CREATE);
 
         DfuServiceListenerHelper.registerProgressListener(this, dfuProgressListener);
@@ -434,9 +432,13 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            mwBoard.disconnectAsync();
-            super.onBackPressed();
+        }
+        else {
+//            mwBoard.disconnectAsync();
+//            super.onBackPressed();
+            Intent result= new Intent();
+            setResult(RESULT_OK, result);
+            finish();
         }
     }
 
@@ -618,4 +620,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             }
         }
     }
+
+
 }

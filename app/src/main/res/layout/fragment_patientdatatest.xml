@@ -32,37 +32,36 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin" >
+    android:layout_height="match_parent">
 
-    <android.support.design.widget.TextInputLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:hintTextAppearance="@style/EditTextLabel"
+    <include layout="@layout/component_sampling_control" />
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/duty_cycle_value_wrapper" >
+        android:layout_height="fill_parent"
+        android:id="@+id/scrollView" >
 
-        <EditText android:id="@+id/duty_cycle_value" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:hint="@string/config_name_haptic_duty_cycle"
-            android:inputType="number|numberDecimal"
-            android:singleLine="true" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    </android.support.design.widget.TextInputLayout>
+            <include layout="@layout/layout_two_button" />
 
-    <android.support.design.widget.TextInputLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:hintTextAppearance="@style/EditTextLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/pulse_width_value_wrapper" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/config_option_title" />
 
-        <EditText android:id="@+id/pulse_width_value" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:hint="@string/config_name_haptic_pulse_width"
-            android:inputType="number"
-            android:maxLines="1" android:singleLine="true" />
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/config_option_spinner" />
 
-    </android.support.design.widget.TextInputLayout>
+            <include layout="@layout/component_line_chart" />
 
-    <include layout="@layout/layout_two_button" />
+        </LinearLayout>
+    </ScrollView>
+
 </LinearLayout>
