@@ -46,8 +46,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
+import com.github.mikephil.charting.data.Entry;
 import com.mbientlab.metawear.AsyncDataProducer;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
@@ -63,6 +65,7 @@ import com.mbientlab.metawear.module.AccelerometerMma8452q;
 import com.mbientlab.metawear.module.Debug;
 import com.mbientlab.metawear.module.Switch;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import bolts.Capture;
@@ -73,13 +76,16 @@ import bolts.Task;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment implements ServiceConnection {
+    public static final int REQUEST_START_APP= 1;
     private final HashMap<DeviceState, MetaWearBoard> stateToBoards;
+    private ArrayList<BluetoothDevice> btDevices;
     private BtleService.LocalBinder binder;
 
     private ConnectedDevicesAdapter connectedDevices= null;
 
     public MainActivityFragment() {
         stateToBoards = new HashMap<>();
+        btDevices = new ArrayList<>();
     }
 
     @Override
@@ -94,6 +100,7 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         getActivity().getApplicationContext().unbindService(this);
     }
 
@@ -105,57 +112,58 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
         newDeviceState.connecting= true;
         connectedDevices.add(newDeviceState);
         stateToBoards.put(newDeviceState, newBoard);
+        btDevices.add(btDevice);
 
-        final Capture<AsyncDataProducer> orientCapture = new Capture<>();
-        final Capture<Accelerometer> accelCapture = new Capture<>();
-
-        newBoard.onUnexpectedDisconnect(status -> getActivity().runOnUiThread(() -> connectedDevices.remove(newDeviceState)));
-        newBoard.connectAsync().onSuccessTask(task -> {
-            getActivity().runOnUiThread(() -> {
-                newDeviceState.connecting= false;
-                connectedDevices.notifyDataSetChanged();
-            });
-
-            final Accelerometer accelerometer = newBoard.getModule(Accelerometer.class);
-            accelCapture.set(accelerometer);
-
-            final AsyncDataProducer orientation;
-            if (accelerometer instanceof AccelerometerBosch) {
-                orientation = ((AccelerometerBosch) accelerometer).orientation();
-            } else {
-                orientation = ((AccelerometerMma8452q) accelerometer).orientation();
-            }
-            orientCapture.set(orientation);
-
-            return orientation.addRouteAsync(source -> source.stream((data, env) -> {
-                getActivity().runOnUiThread(() -> {
-                    newDeviceState.deviceOrientation = data.value(SensorOrientation.class).toString();
-                    connectedDevices.notifyDataSetChanged();
-                });
-            }));
-        }).onSuccessTask(task -> newBoard.getModule(Switch.class).state().addRouteAsync(source -> source.stream((Subscriber) (data, env) -> {
-            getActivity().runOnUiThread(() -> {
-                newDeviceState.pressed = data.value(Boolean.class);
-                connectedDevices.notifyDataSetChanged();
-            });
-        }))).continueWith((Continuation<Route, Void>) task -> {
-            if (task.isFaulted()) {
-                if (!newBoard.isConnected()) {
-                    getActivity().runOnUiThread(() -> connectedDevices.remove(newDeviceState));
-                } else {
-                    Snackbar.make(getActivity().findViewById(R.id.activity_main_layout), task.getError().getLocalizedMessage(), Snackbar.LENGTH_SHORT).show();
-                    newBoard.tearDown();
-                    newBoard.disconnectAsync().continueWith((Continuation<Void, Void>) task1 -> {
-                        connectedDevices.remove(newDeviceState);
-                        return null;
-                    });
-                }
-            } else {
-                orientCapture.get().start();
-                accelCapture.get().start();
-            }
-            return null;
-        });
+//        final Capture<AsyncDataProducer> orientCapture = new Capture<>();
+//        final Capture<Accelerometer> accelCapture = new Capture<>();
+//
+//        newBoard.onUnexpectedDisconnect(status -> getActivity().runOnUiThread(() -> connectedDevices.remove(newDeviceState)));
+//        newBoard.connectAsync().onSuccessTask(task -> {
+//            getActivity().runOnUiThread(() -> {
+//                newDeviceState.connecting= false;
+//                connectedDevices.notifyDataSetChanged();
+//            });
+//
+//            final Accelerometer accelerometer = newBoard.getModule(Accelerometer.class);
+//            accelCapture.set(accelerometer);
+//
+//            final AsyncDataProducer orientation;
+//            if (accelerometer instanceof AccelerometerBosch) {
+//                orientation = ((AccelerometerBosch) accelerometer).orientation();
+//            } else {
+//                orientation = ((AccelerometerMma8452q) accelerometer).orientation();
+//            }
+//            orientCapture.set(orientation);
+//
+//            return orientation.addRouteAsync(source -> source.stream((data, env) -> {
+//                getActivity().runOnUiThread(() -> {
+//                    newDeviceState.deviceOrientation = data.value(SensorOrientation.class).toString();
+//                    connectedDevices.notifyDataSetChanged();
+//                });
+//            }));
+//        }).onSuccessTask(task -> newBoard.getModule(Switch.class).state().addRouteAsync(source -> source.stream((Subscriber) (data, env) -> {
+//            getActivity().runOnUiThread(() -> {
+//                newDeviceState.pressed = data.value(Boolean.class);
+//                connectedDevices.notifyDataSetChanged();
+//            });
+//        }))).continueWith((Continuation<Route, Void>) task -> {
+//            if (task.isFaulted()) {
+//                if (!newBoard.isConnected()) {
+//                    getActivity().runOnUiThread(() -> connectedDevices.remove(newDeviceState));
+//                } else {
+//                    Snackbar.make(getActivity().findViewById(R.id.activity_main_layout), task.getError().getLocalizedMessage(), Snackbar.LENGTH_SHORT).show();
+//                    newBoard.tearDown();
+//                    newBoard.disconnectAsync().continueWith((Continuation<Void, Void>) task1 -> {
+//                        connectedDevices.remove(newDeviceState);
+//                        return null;
+//                    });
+//                }
+//            } else {
+//                orientCapture.get().start();
+//                accelCapture.get().start();
+//            }
+//            return null;
+//        });
     }
 
     @Override
@@ -171,23 +179,35 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
         ListView connectedDevicesView= (ListView) view.findViewById(R.id.connected_devices);
         connectedDevicesView.setAdapter(connectedDevices);
         connectedDevicesView.setOnItemLongClickListener((parent, view1, position, id) -> {
-            DeviceState current= connectedDevices.getItem(position);
-            final MetaWearBoard selectedBoard= stateToBoards.get(current);
-
-            Accelerometer accelerometer = selectedBoard.getModule(Accelerometer.class);
-            accelerometer.stop();
-            if (accelerometer instanceof AccelerometerBosch) {
-                ((AccelerometerBosch) accelerometer).orientation().stop();
-            } else {
-                ((AccelerometerMma8452q) accelerometer).orientation().stop();
-            }
-
-            selectedBoard.tearDown();
-            selectedBoard.getModule(Debug.class).disconnectAsync();
-
-            connectedDevices.remove(current);
+            Intent intent = new Intent(getActivity(), NavigationActivity.class);
+            intent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevices.get(position));
+            startActivityForResult(intent,REQUEST_START_APP);
+//        connectedDevicesView.setOnItemClickListener(new ListView.OnItemClickListener() {
+//            public void onItemClick(AdapterView arg0, View arg1, int arg2, long arg3){
+//                Intent intent = new Intent(getActivity(), NavigationActivity.class);
+//                intent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevices.get(arg2));
+//                startActivityForResult(intent,REQUEST_START_APP);
+//            }
             return false;
         });
+//        connectedDevicesView.setOnItemLongClickListener((parent, view1, position, id) -> {
+//            DeviceState current= connectedDevices.getItem(position);
+//            final MetaWearBoard selectedBoard= stateToBoards.get(current);
+//
+//            Accelerometer accelerometer = selectedBoard.getModule(Accelerometer.class);
+//            accelerometer.stop();
+//            if (accelerometer instanceof AccelerometerBosch) {
+//                ((AccelerometerBosch) accelerometer).orientation().stop();
+//            } else {
+//                ((AccelerometerMma8452q) accelerometer).orientation().stop();
+//            }
+//
+//            selectedBoard.tearDown();
+//            selectedBoard.getModule(Debug.class).disconnectAsync();
+//
+//            connectedDevices.remove(current);
+//            return false;
+//        });
     }
 
     @Override

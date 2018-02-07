@@ -278,6 +278,7 @@
     <string name="label_ok">OK</string>
     <string name="label_start_sample">Start Sampling</string>
     <string name="label_clear">Clear</string>
+    <string name="label_view_data">View Status</string>
     <string name="label_save">Save</string>
     <string name="label_empty">Empty!</string>
     <string name="label_test_screen">Diagnostic Mode</string>
