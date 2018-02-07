@@ -110,7 +110,7 @@ public class PatientFragmentTest extends SensorFragment {
         super.onViewCreated(view, savedInstanceState);
 
         Intent intent = getActivity().getIntent();
-        ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.PATIENT_NAME));
+        ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.EXTRA_PATIENT_NAME));
 
         // Spinner configuration
         ((TextView) view.findViewById(R.id.config_option_title)).setText(R.string.config_name_sensor_fusion_data);

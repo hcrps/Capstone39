@@ -162,7 +162,7 @@ public class PatientFragment extends PatientFragmentBase {
         super.onViewCreated(view, savedInstanceState);
 
         Intent intent = getActivity().getIntent();
-        ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.PATIENT_NAME));
+        ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.EXTRA_PATIENT_NAME));
 
         final YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setAxisMaxValue(360f);
