@@ -8,29 +8,28 @@ import java.util.ArrayList;
  * Created by Person on 2018-01-27.
  */
 
-public class InitialPeriodicMotionDetector extends PatientFragment {
+public class InitialPeriodicMotionDetector {
 
     static double Fs = 100;
     static int arraySize = 1024;
 
-    public static void main(String args[]) {
+    public static void InitialPeriodicDetector(double[] dataPhi, double[] dataTheta, double[] dataPsi) {
 
         //public float[] pitch_data is from PatientFragment --> will ultimately use this data instead of dataPhi
-        double[] dataPhi = {};
-        double[] dataPhiReal = new double[arraySize];
+//        double[] dataPhi;
+//        double[] dataPhiReal = new double[arraySize];
         Complex[] dataPhiComplex = new Complex[arraySize];
         Complex[] dataPhiFrequency = new Complex[arraySize];
         double[] dataPhiFrequencySpectrum = new double[arraySize];
 
-        
-        double[] dataTheta = {};
-        double[] dataThetaReal = new double[arraySize];
+//        double[] dataTheta;
+//        double[] dataThetaReal = new double[arraySize];
         Complex[] dataThetaComplex = new Complex[arraySize];
         Complex[] dataThetaFrequency = new Complex[arraySize];
         double[] dataThetaFrequencySpectrum = new double[arraySize];
 
-        double[] dataPsi = {};
-        double[] dataPsiReal = new double[arraySize];
+//        double[] dataPsi;
+//        double[] dataPsiReal = new double[arraySize];
         Complex[] dataPsiComplex = new Complex[arraySize];
         Complex[] dataPsiFrequency = new Complex[arraySize];
         double[] dataPsiFrequencySpectrum = new double[arraySize];
