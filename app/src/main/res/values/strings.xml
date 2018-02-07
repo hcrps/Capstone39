@@ -222,6 +222,13 @@
     <string-array name="values_fusion_data">
         <item>Quaternion</item>
         <item>Euler Angles</item>
+        <item>Filtered Euler Angles</item>
+    </string-array>
+    <string-array name="values_patient_data_test">
+        <item>Euler Angles</item>
+        <item>Data View 2</item>
+        <item>Data View 3</item>
+        <item>Data View 4</item>
     </string-array>
     <string-array name="values_patient_data_test">
         <item>Euler Angles</item>

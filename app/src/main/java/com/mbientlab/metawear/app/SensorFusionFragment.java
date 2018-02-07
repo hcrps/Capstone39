@@ -115,7 +115,7 @@ public class SensorFusionFragment extends SensorFragment {
                 .gyroRange(GyroRange.GR_2000DPS)
                 .commit();
 
-        if (srcIndex == 0) {
+        if(srcIndex == 0) {
             sensorFusion.quaternion().addRouteAsync(source -> source.stream((data, env) -> {
                 LineData chartData = chart.getData();
 
@@ -132,6 +132,28 @@ public class SensorFusionFragment extends SensorFragment {
             })).continueWith(task -> {
                 streamRoute = task.getResult();
                 sensorFusion.quaternion().start();
+                sensorFusion.start();
+
+                return null;
+            });
+        }
+        if(srcIndex == 1) {
+            sensorFusion.eulerAngles().addRouteAsync(source -> source.stream((data, env) -> {
+                LineData chartData = chart.getData();
+
+                final EulerAngles angles = data.value(EulerAngles.class);
+                chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
+                chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
+                chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
+                chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
+                chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
+
+                sampleCount++;
+
+                updateChart();
+            })).continueWith(task -> {
+                streamRoute = task.getResult();
+                sensorFusion.eulerAngles().start();
                 sensorFusion.start();
 
                 return null;
@@ -167,7 +189,7 @@ public class SensorFusionFragment extends SensorFragment {
 
     @Override
     protected String saveData() {
-        final String CSV_HEADER = (srcIndex == 0 ? String.format("time,w,x,y,z%n") : String.format("time,heading,pitch,roll,yaw%n"));
+        final String CSV_HEADER = (srcIndex == 0 ? String.format("time,w,x,y,z%n") : srcIndex == 1 ? String.format("time,heading,pitch,roll,yaw%n") : String.format("time,heading,pitch,roll,yaw%n"));
         String filename = String.format(Locale.US, "%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", getContext().getString(sensorResId), Calendar.getInstance());
 
         try {
@@ -202,19 +224,19 @@ public class SensorFusionFragment extends SensorFragment {
         }
 
         ArrayList<LineDataSet> spinAxisData= new ArrayList<>();
-        spinAxisData.add(new LineDataSet(x0, srcIndex == 0 ? "w" : "heading"));
+        spinAxisData.add(new LineDataSet(x0, srcIndex == 0 ? "w" : srcIndex == 1 ? "heading" : "heading"));
         spinAxisData.get(0).setColor(Color.BLACK);
         spinAxisData.get(0).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x1, srcIndex == 0 ? "x" : "pitch"));
+        spinAxisData.add(new LineDataSet(x1, srcIndex == 0 ? "x" : srcIndex == 1 ? "pitch" : "pitch"));
         spinAxisData.get(1).setColor(Color.RED);
         spinAxisData.get(1).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x2, srcIndex == 0 ? "y" : "roll"));
+        spinAxisData.add(new LineDataSet(x2, srcIndex == 0 ? "y" : srcIndex == 1 ? "roll" : "roll"));
         spinAxisData.get(2).setColor(Color.GREEN);
         spinAxisData.get(2).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x3, srcIndex == 0 ? "z" : "yaw"));
+        spinAxisData.add(new LineDataSet(x3, srcIndex == 0 ? "z" : srcIndex == 1 ? "yaw" : "yaw"));
         spinAxisData.get(3).setColor(Color.BLUE);
         spinAxisData.get(3).setDrawCircles(false);
 
