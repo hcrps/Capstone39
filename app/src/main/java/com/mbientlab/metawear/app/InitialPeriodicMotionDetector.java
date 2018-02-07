@@ -8,7 +8,8 @@ import java.util.ArrayList;
  * Created by Person on 2018-01-27.
  */
 
-public class InitialPeriodicMotionDetector extends PatientFragment {
+//public class InitialPeriodicMotionDetector extends PatientFragment {
+public class InitialPeriodicMotionDetector {
 
     static double Fs = 100;
     static int arraySize = 1024;
