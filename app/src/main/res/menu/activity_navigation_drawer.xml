@@ -25,8 +25,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_patientdata" android:title="@string/navigation_fragment_patient_data" android:checked="true" />
-        <item android:id="@+id/nav_patientdatatest" android:title="Data Diagnostics" android:checked="true" />
         <item android:id="@+id/nav_home" android:title="@string/navigation_fragment_home" android:checked="true" />
         <!--<item android:id="@+id/nav_patientdata" android:title="@string/navigation_fragment_patient_data" android:checked="true" />-->
         <item android:id="@+id/nav_patientdatatest" android:title="@string/navigation_fragment_patient_data_test" android:checked="true" />
