@@ -10,102 +10,223 @@ import java.util.ArrayList;
 
 public class InitialPeriodicMotionDetector {
 
-    static double Fs = 100;
-    static int arraySize = 1024;
+    private int Fs;
+    private int arraySize;
+    public float significantPeak;
+    private Complex[] dataPhiComplex;
+    private Complex[] dataPhiFrequency;
+    private float[] dataPhiFrequencySpectrum;
 
-    public static void InitialPeriodicDetector(double[] dataPhi, double[] dataTheta, double[] dataPsi) {
+    private Complex[] dataThetaComplex;
+    private Complex[] dataThetaFrequency;
+    private float[] dataThetaFrequencySpectrum;
 
-        //public float[] pitch_data is from PatientFragment --> will ultimately use this data instead of dataPhi
-//        double[] dataPhi;
-//        double[] dataPhiReal = new double[arraySize];
-        Complex[] dataPhiComplex = new Complex[arraySize];
-        Complex[] dataPhiFrequency = new Complex[arraySize];
-        double[] dataPhiFrequencySpectrum = new double[arraySize];
+    private Complex[] dataPsiComplex;
+    private Complex[] dataPsiFrequency;
+    private float[] dataPsiFrequencySpectrum;
+    public float[] firstPeriodicMovement;
 
-//        double[] dataTheta;
-//        double[] dataThetaReal = new double[arraySize];
-        Complex[] dataThetaComplex = new Complex[arraySize];
-        Complex[] dataThetaFrequency = new Complex[arraySize];
-        double[] dataThetaFrequencySpectrum = new double[arraySize];
+    //enum Angle {PHI, THETA, PSI};
+    //Angle currAngle = PHI;
+    //instead reference phi =1, theta = 2, and psi = 3
 
-//        double[] dataPsi;
-//        double[] dataPsiReal = new double[arraySize];
-        Complex[] dataPsiComplex = new Complex[arraySize];
-        Complex[] dataPsiFrequency = new Complex[arraySize];
-        double[] dataPsiFrequencySpectrum = new double[arraySize];
+    public InitialPeriodicMotionDetector(){}
 
-        //Analysis for Phi
-        dataPhiComplex = convertToComplex(dataPhi, dataPhiComplex);
-        dataPhiFrequency = fft(dataPhiComplex);
-        changeToFrequencySpectrum(dataPhiFrequency, dataPhiFrequencySpectrum);
-        double phiPeak = findPeak(dataPhiFrequencySpectrum);
-
-        //Analysis for Theta
-        dataThetaComplex = convertToComplex(dataTheta, dataThetaComplex);
-        dataThetaFrequency = fft(dataThetaComplex);
-        changeToFrequencySpectrum(dataThetaFrequency, dataThetaFrequencySpectrum);
-        double thetaPeak = findPeak(dataThetaFrequencySpectrum);
-
-        //Analysis for Psi
-        dataPsiComplex = convertToComplex(dataPsi, dataPsiComplex);
-        dataPsiFrequency = fft(dataPsiComplex);
-        changeToFrequencySpectrum(dataPsiFrequency, dataPsiFrequencySpectrum);
-        double psiPeak = findPeak(dataPsiFrequencySpectrum);
-
-        //Determine the significant angle
-        double[] movementDirection = (phiPeak > thetaPeak && phiPeak > psiPeak) ? dataPhiFrequencySpectrum: (thetaPeak > phiPeak && thetaPeak > psiPeak) ? dataThetaFrequencySpectrum: dataPsiFrequencySpectrum;
-
-        //find the relative time domain peak in that data set
-        //Will use function from RepetitiveMotionPeriodicDetector
-
-        double[] firstPeriodicMovement;
+    public void finalize() {
+        System.out.println("Detector is being destroyed");
     }
 
+    public InitialPeriodicMotionDetector(int Fs, int arraySize){
+        this.Fs = Fs;
+        this.arraySize = arraySize;
 
-    public static Complex[] convertToComplex(double[] data, Complex[] dataComplex){
+        this.dataPhiComplex = new Complex[arraySize];
+        this.dataPhiFrequencySpectrum = new float[arraySize];
+
+        this.dataThetaComplex = new Complex[arraySize];
+        dataThetaFrequencySpectrum = new float[arraySize];
+
+        this.dataPsiComplex = new Complex[arraySize];
+        this.dataPsiFrequencySpectrum = new float[arraySize];
+
+    }
+
+    public float[] getFreqPitch(){
+        return dataPhiFrequencySpectrum;
+    }
+    public float[] getFreqRoll(){
+        return dataThetaFrequencySpectrum;
+    }
+    public float[] getFreqYaw(){
+        return dataPsiFrequencySpectrum;
+    }
+
+    public int getFs(){
+        return Fs;
+    }
+
+    public int getArraySize (){
+        return arraySize;
+    }
+
+    public float getPeak (){
+        return significantPeak;
+    }
+
+    public boolean isPeriodic(float[] dataPhi, float[] dataTheta, float[] dataPsi) {
+
+        //Analysis for Phi
+        //this.currAngle = PHI;
+        convertToComplex(dataPhi, 1);
+        this.dataPhiFrequency = fft(dataPhiComplex);
+        changeToFrequencySpectrum(1);
+        float phiPeak = findPeak(1);
+
+        //Analysis for Theta
+        //this.currAngle = THETA;
+        convertToComplex(dataTheta, 2);
+        this.dataThetaFrequency = fft(dataThetaComplex);
+        changeToFrequencySpectrum(2);
+        float thetaPeak = findPeak(2);
+
+        //Analysis for Psi
+        //this.currAngle = PSI;
+        convertToComplex(dataPsi, 3);
+        this.dataPsiFrequency = fft(dataPsiComplex);
+        changeToFrequencySpectrum(3);
+        float psiPeak = findPeak(3);
+
+        //Determine the significant angle
+        float[] movementDirection = (phiPeak > thetaPeak && phiPeak > psiPeak) ? dataPhiFrequencySpectrum: (thetaPeak > phiPeak && thetaPeak > psiPeak) ? dataThetaFrequencySpectrum: dataPsiFrequencySpectrum;
+        significantPeak = (phiPeak > thetaPeak && phiPeak > psiPeak) ? phiPeak: (thetaPeak > phiPeak && thetaPeak > psiPeak) ? thetaPeak: psiPeak;
+
+        if(significantPeak > 0){
+            //find the relative time domain peak in that data set
+            //Will use function from RepetitiveMotionPeriodicDetector to find rep of new periodic movement and fill that value into firstPeriodicMovement
+            //float[] firstPeriodicMovement;
+            return true;
+        }
+        return false;
+    }
+
+    /*
+    This function converts euler angles into a complex array of data which consists of real and imaginary data
+    Input: raw data array and empty Complex arra
+    Output: array of Complex data
+     */
+    private void convertToComplex(float[] data, int currAngle){
         //Convert polar data into complex numbers
         //Using radius to be 1
         int index = 0;
-
-        for (double val : data) {
-            dataComplex[index] = new Complex();
-            dataComplex[index].setRe(Math.cos(Math.toRadians(val)));
-            dataComplex[index].setIm(Math.sin(Math.toRadians(val)));
-            index++;
+        switch(currAngle){
+            case 1:
+                for (float val : data) {
+                    this.dataPhiComplex[index] = new Complex();
+                    this.dataPhiComplex[index].setRe((float)Math.cos(Math.toRadians(val)));
+                    this.dataPhiComplex[index].setIm((float)Math.sin(Math.toRadians(val)));
+                    index++;
+                }
+                break;
+            case 2:
+                for (float val : data) {
+                    this.dataThetaComplex[index] = new Complex();
+                    this.dataThetaComplex[index].setRe((float)Math.cos(Math.toRadians(val)));
+                    this.dataThetaComplex[index].setIm((float)Math.sin(Math.toRadians(val)));
+                    index++;
+                }
+                break;
+            case 3:
+                for (float val : data) {
+                    this.dataPsiComplex[index] = new Complex();
+                    this.dataPsiComplex[index].setRe((float)Math.cos(Math.toRadians(val)));
+                    this.dataPsiComplex[index].setIm((float)Math.sin(Math.toRadians(val)));
+                    index++;
+                }
+                break;
         }
-        return dataComplex;
     }
 
     //Need to update to remove threshold
-    public static double findPeak(double[] dataFrequencySpectrum){
+    /*
+    This function finds the peak values from an array which contains magnitude of the frequency spectrum
+    Input: array that contains the frequency spectrum and respective magnitudes
+    Output: peak value
+     */
+    private float findPeak(int currAngle){
         //Frequencies are in Hertz
-        double peakVal = 0;
+        float peakVal = 0;
         int countAboveThreshold = 0;
-        double threshold = 30.0;
-
-        for(int i = 0; i < arraySize; i++){
-            if(dataFrequencySpectrum[i] > threshold){
-                countAboveThreshold++;
-                if(peakVal < dataFrequencySpectrum[i]){
-                    peakVal = dataFrequencySpectrum[i];
+        float threshold = 150;
+        switch(currAngle){
+            case 1:
+                for(int i = 10; i < arraySize; i++){
+                    if(this.dataPhiFrequencySpectrum[i] > threshold){
+                        countAboveThreshold++;
+                        if(peakVal < this.dataPhiFrequencySpectrum[i]){
+                            peakVal = this.dataPhiFrequencySpectrum[i];
+                        }
+                    }
                 }
-            }
+                break;
+            case 2:
+                for(int i = 10; i < arraySize; i++){
+                    if(this.dataThetaFrequencySpectrum[i] > threshold){
+                        countAboveThreshold++;
+                        if(peakVal < this.dataThetaFrequencySpectrum[i]){
+                            peakVal = this.dataThetaFrequencySpectrum[i];
+                        }
+                    }
+                }
+                break;
+            case 3:
+                for(int i = 10; i < arraySize; i++){
+                    if(this.dataPsiFrequencySpectrum[i] > threshold){
+                        countAboveThreshold++;
+                        if(peakVal < this.dataPsiFrequencySpectrum[i]){
+                            peakVal = this.dataPsiFrequencySpectrum[i];
+                        }
+                    }
+                }
+                break;
         }
-        System.out.println("Maximum frequency power is: " + peakVal + " and number of values above power frequency of 30 are: " + countAboveThreshold);
         return peakVal;
     }
 
-    public static double[] changeToFrequencySpectrum(Complex[] dataFrequency, double[] dataFrequencySpectrum){
+    /*
+    This function converts a complex array of data which consists of real and imaginary data into
+    an array that contains the magnitude of the fourier spectrum
+    Input: Complex data array
+    Output: float data array
+     */
+    private void changeToFrequencySpectrum(int currAngle){
         //convert into frequency power spectrum
-        double factor = Fs/arraySize; //sampling f of 100Hz, divided by fft length of arraysize - 256
-        for(int i = 0; i < arraySize; i++){
-            dataFrequencySpectrum[i] = java.lang.Math.sqrt(java.lang.Math.pow(dataFrequency[i].re(),2) + java.lang.Math.pow(dataFrequency[i].im(),2));
-            System.out.println("Current frequency power is: " + dataFrequencySpectrum[i] + " n: " + (i) + " and frequency is: " + factor*i + "Hz");
+        float factor = (float) Fs/arraySize; //sampling f of 100Hz, divided by fft length of arraysize - 256
+
+        switch(currAngle){
+            case 1:
+                for(int i = 0; i < arraySize; i++){
+                    this.dataPhiFrequencySpectrum[i] = (float) java.lang.Math.sqrt(java.lang.Math.pow(this.dataPhiFrequency[i].re(),2) + java.lang.Math.pow(this.dataPhiFrequency[i].im(),2));
+                }
+                break;
+            case 2:
+                for(int i = 0; i < arraySize; i++){
+                    this.dataThetaFrequencySpectrum[i] = (float) java.lang.Math.sqrt(java.lang.Math.pow(this.dataThetaFrequency[i].re(),2) + java.lang.Math.pow(this.dataThetaFrequency[i].im(),2));
+                }
+                break;
+            case 3:
+                for(int i = 0; i < arraySize; i++){
+                    this.dataPsiFrequencySpectrum[i] = (float) java.lang.Math.sqrt(java.lang.Math.pow(this.dataPsiFrequency[i].re(),2) + java.lang.Math.pow(this.dataPsiFrequency[i].im(),2));}
+                break;
         }
-        return dataFrequencySpectrum;
     }
 
-    public static Complex[] fft(Complex[] x) {
+    /*
+    This function converts a complex array of data which consists of real and imaginary data into
+    an array that contains the frequency spectrum - the fast fourier transform recursively
+    Input: Complex data array
+    Output: Complex data array
+     */
+    private Complex[] fft(Complex[] x) {
         int n = x.length;
 
         // base case
@@ -133,8 +254,8 @@ public class InitialPeriodicMotionDetector {
         // combine
         Complex[] y = new Complex[n];
         for (int k = 0; k < n/2; k++) {
-            double kth = -2 * k * Math.PI / n;
-            Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
+            float kth = (float) (-2 * k * Math.PI / n);
+            Complex wk = new Complex((float)Math.cos(kth), (float)Math.sin(kth));
             y[k]       = q[k].plus(wk.times(r[k]));
             y[k + n/2] = q[k].minus(wk.times(r[k]));
         }

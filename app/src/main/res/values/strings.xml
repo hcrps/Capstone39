@@ -249,6 +249,8 @@
     <string name="label_rssi">RSSI</string>
     <string name="label_battery_level">Battery Level</string>
     <string name="label_switch_pressed">Pressed</string>
+    <string name="label_switch_periodic">Periodic</string>
+    <string name="label_switch_notperiodic">Periodic</string>
     <string name="label_switch_released">Released</string>
     <string name="label_device_section_led">Led</string>
     <string name="label_device_section_switch">Switch</string>

@@ -45,11 +45,14 @@ import android.widget.Switch;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
 import com.mbientlab.metawear.Route;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by kahlan on 02/02/2018.
@@ -76,16 +79,15 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     }
 
     protected void updateChart() {
-        long current = Calendar.getInstance().getTimeInMillis();
-        if (prevUpdate == -1 || (current - prevUpdate) >= 33) {
+        long current = System.currentTimeMillis();
+        if (prevUpdate == -1 || (current - prevUpdate) >= 500) {
+            prevUpdate = current;
             chartHandler.post(() -> {
                 chart.getData().notifyDataChanged();
                 chart.notifyDataSetChanged();
 
                 moveViewToLast();
             });
-
-            prevUpdate = current;
         }
     }
     private void moveViewToLast() {
