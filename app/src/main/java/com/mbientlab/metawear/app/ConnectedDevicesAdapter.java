@@ -76,7 +76,6 @@ public class ConnectedDevicesAdapter extends ArrayAdapter<DeviceState> {
         // DeviceState state= getItem(position);
         // final String deviceName= state.btDevice.getName();
 
-
         final String patientName = MainActivity.patient_name;
 
         if(patientName != null && patientName.length() > 0){
