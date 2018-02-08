@@ -55,13 +55,15 @@ import com.mbientlab.metawear.module.SensorFusionBosch.Mode;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.TextView;
+//import android.support.v7.app.AppCompatActivity;
+//import android.os.Bundle;
+//import android.widget.TextView;
 
 /**
  * Created by kahlan on 01/24/2018.
@@ -71,12 +73,12 @@ public class PatientFragment extends PatientFragmentBase {
 //    private static final float SAMPLING_PERIOD = 1 / 100f;
     private static final float SAMPLING_PERIOD = 1 / 2f;
 
-    private final ArrayList<Entry> x0 = new ArrayList<>(), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
-    private SensorFusionBosch sensorFusion;
-
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
     private int capacity = 100; //this is the maximum number of entries we will have in the circular arrays
+
+    private final ArrayList<Entry> x0 = new ArrayList<>(capacity), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
+    private SensorFusionBosch sensorFusion;
 
     private int pitch_flipped = 0; //set to 1 when the data is flipped
     private int roll_flipped = 0; //set to 1 when the data is flipped
@@ -166,8 +168,8 @@ public class PatientFragment extends PatientFragmentBase {
         ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.EXTRA_PATIENT_NAME));
 
         final YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setAxisMaxValue(360f);
-        leftAxis.setAxisMinValue(-360f);
+        leftAxis.setAxisMaxValue(400f);
+        leftAxis.setAxisMinValue(-400f);
 
         refreshChart(false);
     }
@@ -184,51 +186,76 @@ public class PatientFragment extends PatientFragmentBase {
             LineData chartData = chart.getData();
 
             final EulerAngles angles = data.value(EulerAngles.class);
-            chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-            chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
-            chartData.addEntry(new Entry(angles.pitch(), sampleCount), 1);
-            chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
-            chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
 
             //this is new code added by Janelle to save the data into a circular array
             //this for loop shift all the data along in the array before adding a new data point
             //this clears slot 0 and eliminates the least recent data point
             for (int i = (capacity - 1); i > 0; i--) {
                 pitch_data[i] = pitch_data[i - 1];
-                roll_data[i] = roll_data[i - 1];
-                yaw_data[i] = yaw_data[i - 1];
+//                roll_data[i] = roll_data[i - 1];
+//                yaw_data[i] = yaw_data[i - 1];
             }
-
             //store each angle as the first entry in the array and flip data
             pitch_data[0] = angles.pitch(); //this should return the current pitch as a float
             pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
             if (pitch_flipped == 1) { //if we get that the current value is flipped, we must add 360
                 pitch_data[0] = pitch_data[0] + 360;
             }
-
-            roll_data[0] = angles.roll(); //this should return the current roll as a float
-            roll_flipped = FlipCheck(roll_data, roll_flipped);
-            if (roll_flipped == 1) { //if we get that the current value is flipped, we must add 360
-                roll_data[0] = roll_data[0] + 360;
-            }
-
-            yaw_data[0] = angles.yaw(); //this should return the current yaw as a float
-            yaw_flipped = FlipCheck(yaw_data, yaw_flipped);
-            if (yaw_flipped == 1) { //if we get that the current value is flipped, we must add 360
-                yaw_data[0] = yaw_data[0] + 360;
-            }
-
             //call the Convolution function, filtered data is separate as we want to fourier unfiltered
-            pitch_filtered = Convolution(pitch_b, pitch_data);
-            roll_filtered = Convolution(roll_b, roll_data);
-            yaw_filtered = Convolution(yaw_b, yaw_data);
+//            pitch_filtered = Convolution(pitch_b, pitch_data);
 
+            // added by kahlan
 
-            //the new code ends here
+            chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
+            if(sampleCount>100){
+//                chartData.removeEntry(0,0);
+                resetData(false);
+            }
+            chartData.addEntry(new Entry(angles.pitch(), sampleCount), 0);
+
+//              for(int i=0; i<capacity; i++) {
+//                if(sampleCount>=capacity){
+//                    chartData.removeEntry(0,0);
+//                }
+//                if(i > sampleCount){
+//                    chartData.addEntry(new Entry(0,i),0);
+//                }
+//                else {
+//                    chartData.addEntry(new Entry(pitch_data[capacity - i], i),0);
+//                }
+//            }
+
+//            chartData.addEntry(new Entry(angles.heading(), sampleCount), 0);
+//            chartData.addEntry(new Entry(angles.pitch(), sampleCount), 0);
+//            chartData.addEntry(new Entry(pitch_data[0], sampleCount), 1);
+//            chartData.addEntry(new Entry(pitch_filtered[0], sampleCount), 2);
+//            chartData.addEntry(new Entry(angles.roll(), sampleCount), 2);
+//            chartData.addEntry(new Entry(angles.yaw(), sampleCount), 3);
 
             sampleCount++;
 
             updateChart();
+
+//
+//            roll_data[0] = angles.roll(); //this should return the current roll as a float
+//            roll_flipped = FlipCheck(roll_data, roll_flipped);
+//            if (roll_flipped == 1) { //if we get that the current value is flipped, we must add 360
+//                roll_data[0] = roll_data[0] + 360;
+//            }
+//
+//            yaw_data[0] = angles.yaw(); //this should return the current yaw as a float
+//            yaw_flipped = FlipCheck(yaw_data, yaw_flipped);
+//            if (yaw_flipped == 1) { //if we get that the current value is flipped, we must add 360
+//                yaw_data[0] = yaw_data[0] + 360;
+//            }
+//
+//
+//            roll_filtered = Convolution(roll_b, roll_data);
+//            yaw_filtered = Convolution(yaw_b, yaw_data);
+
+
+            //the new code ends here
+
         })).continueWith(task -> {
             streamRoute = task.getResult();
             sensorFusion.eulerAngles().start();

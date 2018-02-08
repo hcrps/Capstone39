@@ -75,31 +75,31 @@ public abstract class ThreeAxisChartFragment extends SensorFragment {
         this.samplePeriod= -1.f;
     }
 
-    @Override
-    protected String saveData() {
-        final String CSV_HEADER = String.format("time,x-%s,y-%s,z-%s%n", dataType, dataType, dataType);
-        String filename = String.format(Locale.US, "%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", getContext().getString(sensorResId), Calendar.getInstance());
-
-        try {
-            FileOutputStream fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
-            fos.write(CSV_HEADER.getBytes());
-
-            LineData data = chart.getLineData();
-            LineDataSet xSpinDataSet = data.getDataSetByIndex(0), ySpinDataSet = data.getDataSetByIndex(1),
-                    zSpinDataSet = data.getDataSetByIndex(2);
-            for (int i = 0; i < data.getXValCount(); i++) {
-                fos.write(String.format(Locale.US, "%.3f,%.3f,%.3f,%.3f%n", i * samplePeriod,
-                        xSpinDataSet.getEntryForXIndex(i).getVal(),
-                        ySpinDataSet.getEntryForXIndex(i).getVal(),
-                        zSpinDataSet.getEntryForXIndex(i).getVal()).getBytes());
-            }
-            fos.close();
-            return filename;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    @Override
+//    protected String saveData() {
+//        final String CSV_HEADER = String.format("time,x-%s,y-%s,z-%s%n", dataType, dataType, dataType);
+//        String filename = String.format(Locale.US, "%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", getContext().getString(sensorResId), Calendar.getInstance());
+//
+//        try {
+//            FileOutputStream fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+//            fos.write(CSV_HEADER.getBytes());
+//
+//            LineData data = chart.getLineData();
+//            LineDataSet xSpinDataSet = data.getDataSetByIndex(0), ySpinDataSet = data.getDataSetByIndex(1),
+//                    zSpinDataSet = data.getDataSetByIndex(2);
+//            for (int i = 0; i < data.getXValCount(); i++) {
+//                fos.write(String.format(Locale.US, "%.3f,%.3f,%.3f,%.3f%n", i * samplePeriod,
+//                        xSpinDataSet.getEntryForXIndex(i).getVal(),
+//                        ySpinDataSet.getEntryForXIndex(i).getVal(),
+//                        zSpinDataSet.getEntryForXIndex(i).getVal()).getBytes());
+//            }
+//            fos.close();
+//            return filename;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
     @Override
     protected void resetData(boolean clearData) {

@@ -151,7 +151,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         });
 
         Button saveButton= (Button) view.findViewById(R.id.layout_two_button_right);
-        saveButton.setText(R.string.label_empty);
+//        saveButton.setText(R.string.label_empty);
         saveButton.setOnClickListener(view12 -> {
         });
     }
