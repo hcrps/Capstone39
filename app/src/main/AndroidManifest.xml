@@ -36,10 +36,10 @@
         <activity
             android:name=".ScannerActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".PatientName">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".PatientName" />
         </activity>
         <activity
             android:name=".NavigationActivity"

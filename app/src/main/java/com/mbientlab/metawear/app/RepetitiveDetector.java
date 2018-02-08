@@ -89,7 +89,6 @@ public class RepetitiveDetector {
         }
         return minArray;
     }
-
     public double[][] characterizeReal(double[] arr, boolean flag) {
         int len = arr.length;
         double[][] max = new double[2][len];

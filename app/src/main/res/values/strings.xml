@@ -236,6 +236,12 @@
         <item>Data View 3</item>
         <item>Data View 4</item>
     </string-array>
+    <string-array name="values_patient_data_test">
+        <item>Euler Angles</item>
+        <item>Data View 2</item>
+        <item>Data View 3</item>
+        <item>Data View 4</item>
+    </string-array>
 
     <string name="value_gpio_pull_up">Up</string>
     <string name="value_gpio_pull_down">Down</string>
@@ -277,6 +283,7 @@
     <string name="label_neopixel_rotate">Rotate</string>
     <string name="label_neopixel_stop">Stop</string>
     <string name="label_unknown_device">Unknown Device</string>
+    <string name="label_no_name">Unknown Patient</string>
     <string name="label_edit">Edit</string>
     <string name="label_enable">Enable</string>
     <string name="label_disable">Disable</string>
