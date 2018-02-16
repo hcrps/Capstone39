@@ -201,7 +201,7 @@ public class PatientFragment extends PatientFragmentBase {
             roll = angles.roll();
             yaw = angles.yaw();
 
-            updateChart();
+            dataUpdate();
 
         })).continueWith(task -> {
             streamRoute = task.getResult();
@@ -353,87 +353,67 @@ public class PatientFragment extends PatientFragmentBase {
         return flip; //basically returning a true or false on whether the data is still flipped
     }
 
-    @Override
-    protected void updateChart() {
+    void doFlip(float[] pitch_data, float[] roll_data, float[] yaw_data){
+        pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
+        if (pitch_flipped == 1) { //if we get that the current value is flipped, we must add 360
+            pitch_data[0] = pitch_data[0] + 360;
+        }
+        roll_flipped = FlipCheck(roll_data, roll_flipped);
+        if (roll_flipped == 1) { //if we get that the current value is flipped, we must add 360
+            roll_data[0] = roll_data[0] + 360;
+        }
+        yaw_flipped = FlipCheck(yaw_data, yaw_flipped);
+        if (yaw_flipped == 1) { //if we get that the current value is flipped, we must add 360
+            yaw_data[0] = yaw_data[0] + 360;
+        }
+    }
+
+    protected void dataUpdate() {
         LineData chartData = chart.getData();
-        InitialPeriodicMotionDetector initDetector = new InitialPeriodicMotionDetector(5, capacity);
         long current = System.currentTimeMillis();
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200) {
             prevUpdate1 = current;
-            chartHandler.post(() -> {
-                //this is new code added by Janelle to save the data into a circular array
-                //this for loop shift all the data along in the array before adding a new data point
-                //this clears slot 0 and eliminates the least recent data point
-                for (int i = (capacity - 1); i > 0; i--) {
-                    pitch_data[i] = pitch_data[i - 1];
-                    roll_data[i] = roll_data[i - 1];
-                    yaw_data[i] = yaw_data[i - 1];
-                }
-                pitch_data[0] = isP ? 0f : pitch;
-                roll_data[0] = roll;
-                yaw_data[0] = yaw;
-                pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
-                if (pitch_flipped == 1) { //if we get that the current value is flipped, we must add 360
-                    pitch_data[0] = pitch_data[0] + 360;
-                }
-                roll_flipped = FlipCheck(roll_data, roll_flipped);
-                if (roll_flipped == 1) { //if we get that the current value is flipped, we must add 360
-                    roll_data[0] = roll_data[0] + 360;
-                }
-                yaw_flipped = FlipCheck(yaw_data, yaw_flipped);
-                if (yaw_flipped == 1) { //if we get that the current value is flipped, we must add 360
-                    yaw_data[0] = yaw_data[0] + 360;
-                }
-                isP = initDetector.isPeriodic(pitch_data, roll_data, yaw_data);
+            // move data over
+            for (int i = (capacity - 1); i > 0; i--) {
+                pitch_data[i] = pitch_data[i - 1];
+                roll_data[i] = roll_data[i - 1];
+                yaw_data[i] = yaw_data[i - 1];
+            }
+            // add data point to buffer in
+            pitch_data[0] = pitch;
+            roll_data[0] = roll;
+            yaw_data[0] = yaw;
 
-                //call the Convolution function, filtered data is separate as we want to fourier unfiltered
-//                pitch_filtered = Convolution(pitch_b, pitch_data);
-//                roll_filtered = Convolution(roll_b, roll_data);
-//                yaw_filtered = Convolution(yaw_b, yaw_data);
+            // flip correction
+            doFlip(pitch_data, roll_data, yaw_data);
 
-                if (srcIndex == 1) {
-                    chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-                    chartData.addEntry(new Entry(pitch_data[0], sampleCount), 1);
-                    chartData.addEntry(new Entry(roll_data[0], sampleCount), 2);
-                    chartData.addEntry(new Entry(yaw_data[0], sampleCount), 3);
-                    chart.getData().notifyDataChanged();
-                    chart.notifyDataSetChanged();
-                    chartData.removeEntry(0, 1);
-                    chartData.removeEntry(0, 2);
-                    chartData.removeEntry(0, 3);
+            // try to update entire chart
+            if (srcIndex == 0) {
+                refreshChart(true);
+                for (int x=capacity-1; x>=0; x++){
+                    chartData.addXValue(String.format(Locale.US, "%.2f", x * SAMPLING_PERIOD));
+                    chartData.addEntry(new Entry(pitch_data[x], x), 1);
+                    chartData.addEntry(new Entry(roll_data[x], x), 2);
+                    chartData.addEntry(new Entry(yaw_data[x], x), 3);
+                }
+                sampleCount = capacity;
+                updateChart();
+            }
 
-                    moveViewToLast();
-                    sampleCount++;
-                }
-            });
-        }
-        if (srcIndex == 0) {
-            if (prevUpdate2 == -1 || (current - prevUpdate2) >= 500) {
-                prevUpdate2 = current;
-                chartData.clearValues();
-                List<Entry> e1 = new ArrayList<Entry>(), e2 = new ArrayList<Entry>(), e3 = new ArrayList<Entry>();
-                float[] freqpitch = initDetector.getFreqPitch();
-                float[] freqroll = initDetector.getFreqRoll();
-                float[] freqyaw = initDetector.getFreqYaw();
-                for (int i = 0; i < capacity; i++) {
-                    e1.add(new Entry(freqpitch[i], i));
-                    e2.add(new Entry(freqroll[i], i));
-                    e3.add(new Entry(freqyaw[i], i));
-                    sampleCount++;
-                }
-                LineDataSet dataSet1 = new LineDataSet(e1, "pitch");
-                dataSet1.setColor(Color.RED);
-                LineDataSet dataSet2 = new LineDataSet(e2, "roll");
-                dataSet2.setColor(Color.GREEN);
-                LineDataSet dataSet3 = new LineDataSet(e3, "yaw");
-                dataSet3.setColor(Color.BLUE);
-                LineData data = new LineData();
-                data.addDataSet(dataSet1);
-                data.addDataSet(dataSet2);
-                data.addDataSet(dataSet3);
-                chart.setData(data);
+            // THIS IS WHAT WAS WORKING IN THE LAST DEMO, do not touch
+            if (srcIndex == 1) {
+                chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
+                chartData.addEntry(new Entry(pitch_data[0], sampleCount), 1);
+                chartData.addEntry(new Entry(roll_data[0], sampleCount), 2);
+                chartData.addEntry(new Entry(yaw_data[0], sampleCount), 3);
+                chart.getData().notifyDataChanged();
                 chart.notifyDataSetChanged();
-//                chart.invalidate();
+                chartData.removeEntry(0, 1);
+                chartData.removeEntry(0, 2);
+                chartData.removeEntry(0, 3);
+
+                moveViewToLast();
+                sampleCount++;
             }
         }
     }
