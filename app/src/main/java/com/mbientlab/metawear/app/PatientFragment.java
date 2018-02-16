@@ -384,6 +384,11 @@ public class PatientFragment extends PatientFragmentBase {
             roll_data[0] = roll;
             yaw_data[0] = yaw;
 
+            // try to display text - not sure if this will work yet!
+            text1 = pitch;
+            text2 = roll;
+            text3 = yaw;
+
             // flip correction
             doFlip(pitch_data, roll_data, yaw_data);
 

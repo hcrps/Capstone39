@@ -21,7 +21,9 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <include layout="@layout/layout_two_button" />
+            <include layout="@layout/layout_three_text" />
 
             <include layout="@layout/component_line_chart" />
 

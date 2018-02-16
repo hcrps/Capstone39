@@ -83,6 +83,8 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
 
     private ConnectedDevicesAdapter connectedDevices= null;
 
+    private boolean patientfrag = true;
+
     public MainActivityFragment() {
         stateToBoards = new HashMap<>();
         btDevices = new ArrayList<>();
@@ -114,6 +116,11 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
         stateToBoards.put(newDeviceState, newBoard);
         btDevices.add(btDevice);
 
+        if(patientfrag) {
+            // ...
+
+        }
+        else {
 //        final Capture<AsyncDataProducer> orientCapture = new Capture<>();
 //        final Capture<Accelerometer> accelCapture = new Capture<>();
 //
@@ -164,6 +171,7 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
 //            }
 //            return null;
 //        });
+        }
     }
 
     @Override
@@ -178,36 +186,35 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ListView connectedDevicesView= (ListView) view.findViewById(R.id.connected_devices);
         connectedDevicesView.setAdapter(connectedDevices);
-        connectedDevicesView.setOnItemLongClickListener((parent, view1, position, id) -> {
-            Intent intent = new Intent(getActivity(), NavigationActivity.class);
-            intent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevices.get(position));
-            startActivityForResult(intent,REQUEST_START_APP);
-//        connectedDevicesView.setOnItemClickListener(new ListView.OnItemClickListener() {
-//            public void onItemClick(AdapterView arg0, View arg1, int arg2, long arg3){
-//                Intent intent = new Intent(getActivity(), NavigationActivity.class);
-//                intent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevices.get(arg2));
-//                startActivityForResult(intent,REQUEST_START_APP);
-//            }
-            return false;
-        });
-//        connectedDevicesView.setOnItemLongClickListener((parent, view1, position, id) -> {
-//            DeviceState current= connectedDevices.getItem(position);
-//            final MetaWearBoard selectedBoard= stateToBoards.get(current);
-//
-//            Accelerometer accelerometer = selectedBoard.getModule(Accelerometer.class);
-//            accelerometer.stop();
-//            if (accelerometer instanceof AccelerometerBosch) {
-//                ((AccelerometerBosch) accelerometer).orientation().stop();
-//            } else {
-//                ((AccelerometerMma8452q) accelerometer).orientation().stop();
-//            }
-//
-//            selectedBoard.tearDown();
-//            selectedBoard.getModule(Debug.class).disconnectAsync();
-//
-//            connectedDevices.remove(current);
-//            return false;
-//        });
+
+        if(patientfrag) {
+            connectedDevicesView.setOnItemLongClickListener((parent, view1, position, id) -> {
+                Intent intent = new Intent(getActivity(), NavigationActivity.class);
+                intent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevices.get(position));
+                startActivityForResult(intent, REQUEST_START_APP);
+                return false;
+            });
+        }
+        else {
+            connectedDevicesView.setOnItemLongClickListener((parent, view1, position, id) -> {
+                DeviceState current = connectedDevices.getItem(position);
+                final MetaWearBoard selectedBoard = stateToBoards.get(current);
+
+                Accelerometer accelerometer = selectedBoard.getModule(Accelerometer.class);
+                accelerometer.stop();
+                if (accelerometer instanceof AccelerometerBosch) {
+                    ((AccelerometerBosch) accelerometer).orientation().stop();
+                } else {
+                    ((AccelerometerMma8452q) accelerometer).orientation().stop();
+                }
+
+                selectedBoard.tearDown();
+                selectedBoard.getModule(Debug.class).disconnectAsync();
+
+                connectedDevices.remove(current);
+                return false;
+            });
+        }
     }
 
     @Override

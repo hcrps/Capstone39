@@ -42,6 +42,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.YAxis;
@@ -70,6 +71,8 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     private final int layoutId;
 
     private final Handler chartHandler= new Handler();
+
+    protected float text1, text2, text3;
 
     protected PatientFragmentBase(int sensorResId, int layoutId, float min, float max) {
         super(sensorResId);
@@ -132,6 +135,13 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         resetData(false);
         chart.invalidate();
         chart.setDescription(null);
+
+        TextView pitchText = (TextView) view.findViewById(R.id.layout_three_text_left);
+        TextView rollText = (TextView) view.findViewById(R.id.layout_three_text_center);
+        TextView yawText = (TextView) view.findViewById(R.id.layout_three_text_right);
+        pitchText.setText("Pitch: " + text1);
+        rollText.setText("Roll: " + text2);
+        yawText.setText("Yaw: " + text3);
 
         Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
         clearButton.setOnClickListener(view1 -> refreshChart(true));
