@@ -139,9 +139,9 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         TextView pitchText = (TextView) view.findViewById(R.id.layout_three_text_left);
         TextView rollText = (TextView) view.findViewById(R.id.layout_three_text_center);
         TextView yawText = (TextView) view.findViewById(R.id.layout_three_text_right);
-        pitchText.setText("Pitch: " + text1);
-        rollText.setText("Roll: " + text2);
-        yawText.setText("Yaw: " + text3);
+        pitchText.setText(getString(R.string.label_pitch, text1));
+        rollText.setText(getString(R.string.label_roll, text2));
+        yawText.setText(getString(R.string.label_yaw, text3));
 
         Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
         clearButton.setOnClickListener(view1 -> refreshChart(true));

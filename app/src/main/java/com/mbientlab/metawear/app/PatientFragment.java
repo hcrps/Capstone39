@@ -79,8 +79,7 @@ public class PatientFragment extends PatientFragmentBase {
     private long prevUpdate1 = -1;
     private long prevUpdate2 = -1;
 
-    public boolean isP;
-    private int srcIndex = 1;
+    private int srcIndex = 0;
 
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
@@ -173,9 +172,6 @@ public class PatientFragment extends PatientFragmentBase {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Intent intent = getActivity().getIntent();
-        ((TextView) view.findViewById(R.id.textpatientname)).setText(intent.getStringExtra(PatientName.EXTRA_PATIENT_NAME));
 
         final YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setAxisMaxValue(400f);
@@ -394,7 +390,7 @@ public class PatientFragment extends PatientFragmentBase {
 
             // try to update entire chart
             if (srcIndex == 0) {
-                refreshChart(true);
+                resetData(true);
                 for (int x=capacity-1; x>=0; x++){
                     chartData.addXValue(String.format(Locale.US, "%.2f", x * SAMPLING_PERIOD));
                     chartData.addEntry(new Entry(pitch_data[x], x), 1);

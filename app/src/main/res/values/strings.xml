@@ -282,6 +282,9 @@
     <string name="label_ok">OK</string>
     <string name="label_start_sample">Start Sampling</string>
     <string name="label_clear">Clear</string>
+    <string name="label_pitch">Pitch: %1$f</string>
+    <string name="label_roll">Roll: %1$f</string>
+    <string name="label_yaw">Yaw: %1$f</string>
     <string name="label_view_data">View Status</string>
     <string name="label_save">Save</string>
     <string name="label_empty">Empty!</string>
