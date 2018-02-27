@@ -32,6 +32,7 @@
 package com.mbientlab.metawear.app;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -63,6 +64,14 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     protected LineChart chart;
     protected int sampleCount;
     protected long prevUpdate = -1;
+
+    protected int numReps = 0;
+    private TextView repsText;
+
+    static int REP_DELAY = 50;
+    private TextView pitchText;
+    private TextView rollText;
+    private TextView yawText;
 
     protected float min, max;
     protected Route streamRoute = null;
@@ -135,13 +144,21 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         resetData(false);
         chart.invalidate();
         chart.setDescription(null);
+        chart.setBackgroundColor(Color.rgb(68,71,90));
+        chart.setDrawGridBackground(false);
+        chart.getAxisLeft().setTextColor(Color.WHITE); // left y-axis
+        chart.getXAxis().setTextColor(Color.WHITE);
+        chart.getLegend().setTextColor(Color.WHITE);
 
-        TextView pitchText = (TextView) view.findViewById(R.id.layout_three_text_left);
-        TextView rollText = (TextView) view.findViewById(R.id.layout_three_text_center);
-        TextView yawText = (TextView) view.findViewById(R.id.layout_three_text_right);
+        pitchText = (TextView) view.findViewById(R.id.layout_three_text_left);
+        rollText = (TextView) view.findViewById(R.id.layout_three_text_center);
+        yawText = (TextView) view.findViewById(R.id.layout_three_text_right);
         pitchText.setText(getString(R.string.label_pitch, text1));
         rollText.setText(getString(R.string.label_roll, text2));
         yawText.setText(getString(R.string.label_yaw, text3));
+        repsText = (TextView) view.findViewById(R.id.layout_two_text_left);
+        repsText.setText(getString(R.string.label_reps, numReps));
+        textUpdateHandler.post( new RptUpdater() );
 
         Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
         clearButton.setOnClickListener(view1 -> refreshChart(true));
@@ -188,4 +205,19 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     protected abstract void setup();
     protected abstract void clean();
     protected abstract void resetData(boolean clearData);
+
+    private Handler textUpdateHandler = new Handler();
+
+    class RptUpdater implements Runnable {
+        public void run() {
+            updatetext();
+            textUpdateHandler.postDelayed( new RptUpdater(), REP_DELAY );
+        }
+    }
+    public void updatetext(){
+        pitchText.setText(getString(R.string.label_pitch, text1));
+        rollText.setText(getString(R.string.label_roll, text2));
+        yawText.setText(getString(R.string.label_yaw, text3));
+        repsText.setText(getString(R.string.label_reps, numReps));
+    }
 }

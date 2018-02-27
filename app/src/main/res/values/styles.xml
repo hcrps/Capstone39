@@ -32,7 +32,7 @@
 <resources>
 
     <style name="Widget.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/actionBarColor</item>
+    <item name="background">@color/actionBarColor</item>
         <item name="android:background">@color/actionBarColor</item>
         <item name="android:backgroundStacked">@color/actionBarColor</item>
         <item name="android:backgroundSplit">@color/actionBarColor</item>
@@ -44,13 +44,14 @@
         <!-- Customize your theme here. -->
         <item name="android:actionBarStyle">@style/Widget.ActionBar</item>
         <item name="actionBarStyle">@style/Widget.ActionBar</item>
-        <item name="android:windowBackground">@mipmap/background</item>
+        <!--<item name="android:windowBackground">@mipmap/background</item>-->
+        <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="colorPrimary">@color/actionBarColor</item>
         <item name="colorPrimaryDark">@color/actionBarColorDark</item>
     </style>
 
     <style name="EditTextLabel" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">#009688</item>
+        <item name="android:textColor">#f8f8f2</item>
     </style>
 
     <style name="HorizontalLine">

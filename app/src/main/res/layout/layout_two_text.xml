@@ -30,12 +30,19 @@
   ~ contact MbientLab Inc, at www.mbientlab.com.
   -->
 
-<resources>
-  <!--<color name="action_text">#3D3AB0</color>-->
-  <color name="action_text">#282a36</color>
-  <!--<color name="actionBarColor">#758cc0</color>-->
-  <color name="actionBarColor">#44475a</color>
-  <!--<color name="actionBarColorDark">#5c6e96</color>-->
-  <color name="actionBarColorDark">#44475a</color>
-  <color name="backgroundColor">#f8f8f2</color>
-</resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:id="@+id/layout_two_text_left" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:id="@+id/layout_two_text_right" />
+</LinearLayout>

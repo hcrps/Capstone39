@@ -79,7 +79,7 @@ public class PatientFragment extends PatientFragmentBase {
     private long prevUpdate1 = -1;
     private long prevUpdate2 = -1;
 
-    private int srcIndex = 0;
+    private int srcIndex = 1;
 
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
@@ -197,6 +197,17 @@ public class PatientFragment extends PatientFragmentBase {
             roll = angles.roll();
             yaw = angles.yaw();
 
+            // move data over
+            for (int i = (capacity - 1); i > 0; i--) {
+                pitch_data[i] = pitch_data[i - 1];
+                roll_data[i] = roll_data[i - 1];
+                yaw_data[i] = yaw_data[i - 1];
+            }
+            // add data point to buffer in
+            pitch_data[0] = pitch;
+            roll_data[0] = roll;
+            yaw_data[0] = yaw;
+
             dataUpdate();
 
         })).continueWith(task -> {
@@ -221,25 +232,21 @@ public class PatientFragment extends PatientFragmentBase {
             x0.clear();
             x1.clear();
             x2.clear();
-            x3.clear();
         }
 
         ArrayList<LineDataSet> spinAxisData = new ArrayList<>();
-        spinAxisData.add(new LineDataSet(x0, "heading"));
-        spinAxisData.get(0).setColor(Color.BLACK);
-        spinAxisData.get(0).setDrawCircles(false);
 
         spinAxisData.add(new LineDataSet(x1, "pitch"));
-        spinAxisData.get(1).setColor(Color.RED);
-        spinAxisData.get(1).setDrawCircles(false);
+        spinAxisData.get(0).setColor(Color.rgb(139, 233, 253));
+        spinAxisData.get(0).setDrawCircles(false);
 
         spinAxisData.add(new LineDataSet(x2, "roll"));
-        spinAxisData.get(2).setColor(Color.GREEN);
-        spinAxisData.get(2).setDrawCircles(false);
+        spinAxisData.get(1).setColor(Color.rgb(80, 250, 123));
+        spinAxisData.get(1).setDrawCircles(false);
 
         spinAxisData.add(new LineDataSet(x3, "yaw"));
-        spinAxisData.get(3).setColor(Color.BLUE);
-        spinAxisData.get(3).setDrawCircles(false);
+        spinAxisData.get(2).setColor(Color.rgb(255, 184, 108));
+        spinAxisData.get(2).setDrawCircles(false);
 
         LineData data = new LineData(chartXValues);
         for (LineDataSet set : spinAxisData) {
@@ -259,154 +266,24 @@ public class PatientFragment extends PatientFragmentBase {
         adapter.add(new HelpOption(R.string.config_name_sensor_fusion_data, R.string.config_desc_sensor_fusion_data));
     }
 
-    //This function performs the convolution as a part of the FIR filter, first we must set our x
-    //to a 2D array, each row corresponds to 1 set of values that will be multiplied by b
-    //for example if we want [1 2 3 4 5 6] to be multiplied by [0.1 0.2 0.3] our 2D array would be
-    //[1 0 0]
-    //[2 1 0]
-    //[3 2 1]
-    //[4 3 2]
-    //[5 4 3]
-    //[6 5 4]
-    //[0 6 5]
-    //[0 0 6]
-    //this function returns our y post convolution of y = b*x
-    private static float[] Convolution(double[] b, float[] data) {
-        int sizeofb = b.length; //the size of b
-        int sizeofdata = data.length; //the number of data points we are storing
-        int numrows = (sizeofdata + sizeofb) - 1; //the number of rows depends on the number of delays
-        float[][] multi = new float[numrows][3]; //a 2-d matrix to store a matrix with 0s for convolution
-        float[] y = new float[numrows];
-        int r = 0; //used to index rows
-        int c = 0; //used to index columns
-
-
-        for (r = 0; r < sizeofdata; r++) { //add zeros before the first data point and shift along
-            for (c = 0; ((c <= r) && (c < sizeofb)); c++) {
-                multi[r][c] = data[r - c];
-            }
-        }
-
-        for (r = (sizeofdata - 1); r < numrows; r++) { //add zeros once the last data point has moved through
-            for (c = 0; c < sizeofb; c++) {
-                if ((r - c) < sizeofdata) {
-                    multi[r][c] = data[r - c];
-                }
-            }
-        }
-
-        for (r = 0; r < numrows; r++) { //multiply each row by b and sum
-            float sum = 0;
-            for (c = 0; c < sizeofb; c++) {
-                sum = (multi[r][c] * (float)b[c]) + sum;
-            }
-            y[r] = sum;
-        }
-
-        //The code below was used to print out the results of convolution and was used for debugging
-        /*for(r = 0; r < 7; r++){
-            for(c = 0; c < 3; c++){
-                System.out.println(multi[r][c]);
-            }
-        }
-
-        System.out.println(" ________________ ");
-
-        for(r=0; r < 7; r++){
-            System.out.println(y[r]);
-        } */
-
-        return y;
-
-    }
-
-    //this function is used to resolve the fact that the raw Euler Angles from the sensor do are
-    //being flipped when they are over 360 degrees, for example 361 degrees would be sent as 1 degree
-    public static int FlipCheck(float[] data, int alreadyflipped) {
-        int i = 0; //this is used as an index to get the previous data point and current
-        int flip; //this returned, 0 is false, 1 is true
-        float lastval = data[i + 1];
-        float currval = data[i];
-
-        //if the data is already flipped we are checking for the point when the current angle is
-        //less than 360 and the last was over 360
-        if (alreadyflipped == 1) {  //alreadyflipped is passed in
-            if ((lastval > 360) && (currval > 300))
-                flip = 0; //if it is no longer flipped, we return false
-            else
-                flip = 1; //otherwise we return true
-        }
-
-        //if the last point was not flipped then we are checking if the last point was over 300
-        //and the current is under 50--> I can show all this logic graphically if it's confusing
-        else {
-            if ((lastval > 300) && (currval < 50)) {
-                flip = 1;
-            } else
-                flip = 0;
-        }
-
-        return flip; //basically returning a true or false on whether the data is still flipped
-    }
-
-    void doFlip(float[] pitch_data, float[] roll_data, float[] yaw_data){
-        pitch_flipped = FlipCheck(pitch_data, pitch_flipped);
-        if (pitch_flipped == 1) { //if we get that the current value is flipped, we must add 360
-            pitch_data[0] = pitch_data[0] + 360;
-        }
-        roll_flipped = FlipCheck(roll_data, roll_flipped);
-        if (roll_flipped == 1) { //if we get that the current value is flipped, we must add 360
-            roll_data[0] = roll_data[0] + 360;
-        }
-        yaw_flipped = FlipCheck(yaw_data, yaw_flipped);
-        if (yaw_flipped == 1) { //if we get that the current value is flipped, we must add 360
-            yaw_data[0] = yaw_data[0] + 360;
-        }
-    }
-
     protected void dataUpdate() {
         LineData chartData = chart.getData();
         long current = System.currentTimeMillis();
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200) {
+            numReps++;
             prevUpdate1 = current;
-            // move data over
-            for (int i = (capacity - 1); i > 0; i--) {
-                pitch_data[i] = pitch_data[i - 1];
-                roll_data[i] = roll_data[i - 1];
-                yaw_data[i] = yaw_data[i - 1];
-            }
-            // add data point to buffer in
-            pitch_data[0] = pitch;
-            roll_data[0] = roll;
-            yaw_data[0] = yaw;
 
             // try to display text - not sure if this will work yet!
             text1 = pitch;
             text2 = roll;
             text3 = yaw;
 
-            // flip correction
-            doFlip(pitch_data, roll_data, yaw_data);
-
-            // try to update entire chart
-            if (srcIndex == 0) {
-                resetData(true);
-                for (int x=capacity-1; x>=0; x++){
-                    chartData.addXValue(String.format(Locale.US, "%.2f", x * SAMPLING_PERIOD));
-                    chartData.addEntry(new Entry(pitch_data[x], x), 1);
-                    chartData.addEntry(new Entry(roll_data[x], x), 2);
-                    chartData.addEntry(new Entry(yaw_data[x], x), 3);
-                }
-                sampleCount = capacity;
-                updateChart();
-            }
-
             // THIS IS WHAT WAS WORKING IN THE LAST DEMO, do not touch
             if (srcIndex == 1) {
                 chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-                chartData.addEntry(new Entry(pitch_data[0], sampleCount), 1);
-                chartData.addEntry(new Entry(roll_data[0], sampleCount), 2);
-                chartData.addEntry(new Entry(yaw_data[0], sampleCount), 3);
+                chartData.addEntry(new Entry(pitch_data[0], sampleCount), 0);
+                chartData.addEntry(new Entry(roll_data[0], sampleCount), 1);
+                chartData.addEntry(new Entry(yaw_data[0], sampleCount), 2);
                 chart.getData().notifyDataChanged();
                 chart.notifyDataSetChanged();
                 chartData.removeEntry(0, 1);
