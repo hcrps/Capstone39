@@ -93,6 +93,7 @@ public class PatientFragment extends PatientFragmentBase {
     ArrayList<Double> yaw_data = new ArrayList<>();
 
     Filtration filtration = new Filtration();
+    //ADD CLASS HERE
 
     public float pitch, roll, yaw;
 
@@ -210,6 +211,11 @@ public class PatientFragment extends PatientFragmentBase {
         pitch_data = filtration.Filter(pitch_data, capacity, "pitch");
         roll_data = filtration.Filter(roll_data, capacity, "roll");
         yaw_data = filtration.Filter(yaw_data, capacity, "yaw");
+
+        // CALL TO GET isPeriodic and freq HERE
+        // isPeriodic = **** boolean
+        // freqText = ***** float
+
 
         float p_f = pitch_data.get(0).floatValue();
         float r_f = roll_data.get(0).floatValue();
