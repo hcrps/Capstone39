@@ -50,6 +50,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.mbientlab.metawear.Route;
+import com.mbientlab.metawear.module.Led;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -60,10 +61,13 @@ import java.util.Locale;
  * Created by kahlan on 02/02/2018.
  */
 public abstract class PatientFragmentBase extends ModuleFragmentBase {
+    protected Led ledModule;
     protected final ArrayList<String> chartXValues= new ArrayList<>();
     protected LineChart chart;
     protected int sampleCount;
     protected long prevUpdate = -1;
+
+    protected boolean isPeriodic = false;
 
     protected int numReps = 0;
     private TextView repsText;
@@ -72,6 +76,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     private TextView pitchText;
     private TextView rollText;
     private TextView yawText;
+    private TextView isPText;
 
     protected float min, max;
     protected Route streamRoute = null;
@@ -81,7 +86,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
 
     private final Handler chartHandler= new Handler();
 
-    protected float text1, text2, text3;
+    protected float text1, text2, text3, freqtext;
 
     protected PatientFragmentBase(int sensorResId, int layoutId, float min, float max) {
         super(sensorResId);
@@ -158,6 +163,8 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         yawText.setText(getString(R.string.label_yaw, text3));
         repsText = (TextView) view.findViewById(R.id.layout_two_text_left);
         repsText.setText(getString(R.string.label_reps, numReps));
+        isPText = (TextView) view.findViewById(R.id.layout_two_text_right);
+        isPText.setText(R.string.label_not_periodic);
         textUpdateHandler.post( new RptUpdater() );
 
         Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
@@ -166,9 +173,15 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
 
         ((Switch) view.findViewById(R.id.sample_control)).setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
-                moveViewToLast();
+//                moveViewToLast();
                 setup();
+                if (ledModule != null){
+                    ledModule.stop(true);
+                }
             } else {
+                if (ledModule != null){
+                    ledModule.stop(true);
+                }
                 chart.setVisibleXRangeMinimum(1);
                 chart.setVisibleXRangeMaximum(sampleCount);
                 clean();
@@ -191,6 +204,9 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         resetData(clearData);
         chart.invalidate();
         chart.fitScreen();
+        if (ledModule != null){
+            ledModule.stop(true);
+        }
     }
 
     protected void initializeChart() {
@@ -219,5 +235,12 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         rollText.setText(getString(R.string.label_roll, text2));
         yawText.setText(getString(R.string.label_yaw, text3));
         repsText.setText(getString(R.string.label_reps, numReps));
+        if (isPeriodic){
+            isPText.setText(getString(R.string.label_is_periodic, freqtext));
+        }
+        else{
+            isPText.setText(R.string.label_not_periodic);
+        }
     }
+
 }

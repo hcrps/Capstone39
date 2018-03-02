@@ -286,6 +286,8 @@
     <string name="label_roll">Roll: %.2f</string>
     <string name="label_yaw">Yaw: %.2f</string>
     <string name="label_reps">Reps: %d</string>
+    <string name="label_is_periodic">Periodic:  True %.2f</string>
+    <string name="label_not_periodic">Periodic: False</string>
     <string name="label_view_data">View Status</string>
     <string name="label_save">Save</string>
     <string name="label_empty">Empty!</string>

@@ -49,6 +49,7 @@ import com.mbientlab.metawear.UnsupportedModuleException;
 import com.mbientlab.metawear.app.help.HelpOption;
 import com.mbientlab.metawear.app.help.HelpOptionAdapter;
 import com.mbientlab.metawear.data.EulerAngles;
+import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.SensorFusionBosch;
 import com.mbientlab.metawear.module.SensorFusionBosch.AccRange;
 import com.mbientlab.metawear.module.SensorFusionBosch.GyroRange;
@@ -87,83 +88,13 @@ public class PatientFragment extends PatientFragmentBase {
     private final ArrayList<Entry> x0 = new ArrayList<>(capacity), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;
 
-    private int pitch_flipped = 0; //set to 1 when the data is flipped
-    private int roll_flipped = 0; //set to 1 when the data is flipped
-    private int yaw_flipped = 0; //set to 1 when the data is flipped
+    ArrayList<Double> pitch_data = new ArrayList<>();
+    ArrayList<Double> roll_data = new ArrayList<>();
+    ArrayList<Double> yaw_data = new ArrayList<>();
 
-    public float[] pitch_data = new float[capacity]; //this will be used to store unfiltered data
-    public float[] roll_data = new float[capacity]; //this will be used to store unfiltered data
-    public float[] yaw_data = new float[capacity]; //this will be used to store unfiltered data
+    Filtration filtration = new Filtration();
 
     public float pitch, roll, yaw;
-
-    //this has the definitions for the b values for convolution, gathered from MATLAB's fir1
-    public double[] pitch_b = {0.000779956276928257, 0.000840665872371555, 0.000894497959742675,
-            0.000922928033512174, 0.000893085626721506, 0.00076116965958513, 0.000478545449042225,
-            -5.73837960208593E-19, -0.000706696809086334, -0.00165102681769932, -0.00281099159279643,
-            -0.00412665195241372, -0.00549703415158719, -0.00678121936932106, -0.00780404235062265,
-            -0.00836635873181521, -0.00825934535557941, -0.00728182559480732, -0.00525921393862945,
-            -0.00206239663729071, 0.00237525704322728, 0.00804450547898497, 0.0148519892234465,
-            0.0226182590142883, 0.0310826856028395, 0.0399152567398694, 0.0487346385904925,
-            0.0571312865009099, 0.0646938920482515, 0.0710371002022807, 0.0758282593670764,
-            0.0788109978766488, 0.0798236534708593, 0.0788109978766488, 0.0758282593670764,
-            0.0710371002022807, 0.0646938920482515, 0.0571312865009099, 0.0487346385904925,
-            0.0399152567398694, 0.0310826856028395, 0.0226182590142883, 0.0148519892234465,
-            0.00804450547898497, 0.00237525704322728, -0.00206239663729071, -0.00525921393862945,
-            -0.00728182559480732, -0.00825934535557941, -0.00836635873181521, -0.00780404235062265,
-            -0.00678121936932106, -0.00549703415158719, -0.00412665195241372, -0.00281099159279643,
-            -0.00165102681769932, -0.000706696809086334, -5.73837960208593E-19, 0.000478545449042225,
-            0.00076116965958513, 0.000893085626721506, 0.000922928033512174, 0.000894497959742675,
-            0.000840665872371555, 0.000779956276928257};
-    public double[] roll_b = {0.000779956276928257, 0.000840665872371555, 0.000894497959742675,
-            0.000922928033512174, 0.000893085626721506, 0.00076116965958513, 0.000478545449042225,
-            -5.73837960208593E-19, -0.000706696809086334, -0.00165102681769932, -0.00281099159279643,
-            -0.00412665195241372, -0.00549703415158719, -0.00678121936932106, -0.00780404235062265,
-            -0.00836635873181521, -0.00825934535557941, -0.00728182559480732, -0.00525921393862945,
-            -0.00206239663729071, 0.00237525704322728, 0.00804450547898497, 0.0148519892234465,
-            0.0226182590142883, 0.0310826856028395, 0.0399152567398694, 0.0487346385904925,
-            0.0571312865009099, 0.0646938920482515, 0.0710371002022807, 0.0758282593670764,
-            0.0788109978766488, 0.0798236534708593, 0.0788109978766488, 0.0758282593670764,
-            0.0710371002022807, 0.0646938920482515, 0.0571312865009099, 0.0487346385904925,
-            0.0399152567398694, 0.0310826856028395, 0.0226182590142883, 0.0148519892234465,
-            0.00804450547898497, 0.00237525704322728, -0.00206239663729071, -0.00525921393862945,
-            -0.00728182559480732, -0.00825934535557941, -0.00836635873181521, -0.00780404235062265,
-            -0.00678121936932106, -0.00549703415158719, -0.00412665195241372, -0.00281099159279643,
-            -0.00165102681769932, -0.000706696809086334, -5.73837960208593E-19, 0.000478545449042225,
-            0.00076116965958513, 0.000893085626721506, 0.000922928033512174, 0.000894497959742675,
-            0.000840665872371555, 0.000779956276928257};
-    public double[] yaw_b = {0.000779956276928257, 0.000840665872371555, 0.000894497959742675,
-            0.000922928033512174, 0.000893085626721506, 0.00076116965958513, 0.000478545449042225,
-            -5.73837960208593E-19, -0.000706696809086334, -0.00165102681769932, -0.00281099159279643,
-            -0.00412665195241372, -0.00549703415158719, -0.00678121936932106, -0.00780404235062265,
-            -0.00836635873181521, -0.00825934535557941, -0.00728182559480732, -0.00525921393862945,
-            -0.00206239663729071, 0.00237525704322728, 0.00804450547898497, 0.0148519892234465,
-            0.0226182590142883, 0.0310826856028395, 0.0399152567398694, 0.0487346385904925,
-            0.0571312865009099, 0.0646938920482515, 0.0710371002022807, 0.0758282593670764,
-            0.0788109978766488, 0.0798236534708593, 0.0788109978766488, 0.0758282593670764,
-            0.0710371002022807, 0.0646938920482515, 0.0571312865009099, 0.0487346385904925,
-            0.0399152567398694, 0.0310826856028395, 0.0226182590142883, 0.0148519892234465,
-            0.00804450547898497, 0.00237525704322728, -0.00206239663729071, -0.00525921393862945,
-            -0.00728182559480732, -0.00825934535557941, -0.00836635873181521, -0.00780404235062265,
-            -0.00678121936932106, -0.00549703415158719, -0.00412665195241372, -0.00281099159279643,
-            -0.00165102681769932, -0.000706696809086334, -5.73837960208593E-19, 0.000478545449042225,
-            0.00076116965958513, 0.000893085626721506, 0.000922928033512174, 0.000894497959742675,
-            0.000840665872371555, 0.000779956276928257};
-
-    int sizeofpitchb = pitch_b.length;
-    int sizeofpitchdata = pitch_data.length;
-    int numpitchrows = (sizeofpitchdata + sizeofpitchb) - 1; //minus 1 since arrays start at 0
-    float[] pitch_filtered = new float[numpitchrows]; //y is longer than x by b-1 post convolution
-
-    int sizeofrollb = roll_b.length;
-    int sizeofrolldata = roll_data.length;
-    int numrollrows = (sizeofrolldata + sizeofrollb) - 1; //minus 1 since arrays start at 0
-    float[] roll_filtered = new float[numrollrows]; //y is longer than x by b-1 post convolution
-
-    int sizeofyawb = yaw_b.length;
-    int sizeofyawdata = yaw_data.length;
-    int numyawrows = (sizeofyawdata + sizeofyawb) - 1; //minus 1 since arrays start at 0
-    float[] yaw_filtered = new float[numyawrows]; //y is longer than x by b-1 post convolution
 
     public PatientFragment() {
         super(R.string.navigation_fragment_patient, R.layout.fragment_patientdata, -1f, 1f);
@@ -178,6 +109,11 @@ public class PatientFragment extends PatientFragmentBase {
         leftAxis.setAxisMinValue(-400f);
 
         refreshChart(false);
+        for (int i=0;i<capacity;i++){
+            pitch_data.add(0.0);
+            pitch_data.add(0.0);
+            pitch_data.add(0.0);
+        }
     }
 
     @Override
@@ -196,17 +132,6 @@ public class PatientFragment extends PatientFragmentBase {
             pitch = angles.pitch(); //this should return the current pitch as a float
             roll = angles.roll();
             yaw = angles.yaw();
-
-            // move data over
-            for (int i = (capacity - 1); i > 0; i--) {
-                pitch_data[i] = pitch_data[i - 1];
-                roll_data[i] = roll_data[i - 1];
-                yaw_data[i] = yaw_data[i - 1];
-            }
-            // add data point to buffer in
-            pitch_data[0] = pitch;
-            roll_data[0] = roll;
-            yaw_data[0] = yaw;
 
             dataUpdate();
 
@@ -259,6 +184,7 @@ public class PatientFragment extends PatientFragmentBase {
     @Override
     protected void boardReady() throws UnsupportedModuleException {
         sensorFusion = mwBoard.getModuleOrThrow(SensorFusionBosch.class);
+        ledModule = mwBoard.getModuleOrThrow(Led.class);
     }
 
     @Override
@@ -269,21 +195,50 @@ public class PatientFragment extends PatientFragmentBase {
     protected void dataUpdate() {
         LineData chartData = chart.getData();
         long current = System.currentTimeMillis();
+        double p = pitch;
+        double r = roll;
+        double y = yaw;
+        pitch_data.add(0, p);
+        roll_data.add(0,r);
+        yaw_data.add(0,y);
+        pitch_data.remove(capacity);
+        roll_data.remove(capacity);
+        yaw_data.remove(capacity);
+
+        pitch_data = filtration.Filter(pitch_data, capacity, "pitch");
+        roll_data = filtration.Filter(roll_data, capacity, "roll");
+        yaw_data = filtration.Filter(yaw_data, capacity, "yaw");
+
+        float p_f = pitch_data.get(0).floatValue();
+        float r_f = roll_data.get(0).floatValue();
+        float y_f = yaw_data.get(0).floatValue();
+
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200) {
+            ledModule.stop(true);
+            if(isPeriodic){
+                configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
+                configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(0)));
+            }
+            else{
+
+                configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
+                configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(1)));
+            }
+            ledModule.play();
             numReps++;
             prevUpdate1 = current;
 
             // try to display text - not sure if this will work yet!
-            text1 = pitch;
-            text2 = roll;
-            text3 = yaw;
+            text1 = p_f;
+            text2 = r_f;
+            text3 = y_f;
 
             // THIS IS WHAT WAS WORKING IN THE LAST DEMO, do not touch
             if (srcIndex == 1) {
                 chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-                chartData.addEntry(new Entry(pitch_data[0], sampleCount), 0);
-                chartData.addEntry(new Entry(roll_data[0], sampleCount), 1);
-                chartData.addEntry(new Entry(yaw_data[0], sampleCount), 2);
+                chartData.addEntry(new Entry(p_f, sampleCount), 0);
+                chartData.addEntry(new Entry(r_f, sampleCount), 1);
+                chartData.addEntry(new Entry(y_f, sampleCount), 2);
                 chart.getData().notifyDataChanged();
                 chart.notifyDataSetChanged();
                 chartData.removeEntry(0, 1);
@@ -299,6 +254,12 @@ public class PatientFragment extends PatientFragmentBase {
         chart.setVisibleXRangeMinimum(100);
         chart.setVisibleXRangeMaximum(100);
         chart.moveViewToX(Math.max(0f, chartXValues.size() - 1));
+    }
+    private void configureChannel(Led.PatternEditor editor) {
+        final short PULSE_WIDTH= 1000;
+        editor.highIntensity((byte) 31).lowIntensity((byte) 31)
+                .highTime((short) (PULSE_WIDTH >> 1)).pulseDuration(PULSE_WIDTH)
+                .repeatCount((byte) -1).commit();
     }
 
 }
