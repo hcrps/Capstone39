@@ -173,7 +173,6 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
 
         ((Switch) view.findViewById(R.id.sample_control)).setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
-//                moveViewToLast();
                 setup();
                 if (ledModule != null){
                     ledModule.stop(true);
@@ -199,14 +198,26 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     }
 
     protected void refreshChart(boolean clearData) {
-        chart.resetTracking();
-        chart.clear();
-        resetData(clearData);
-        chart.invalidate();
-        chart.fitScreen();
         if (ledModule != null){
             ledModule.stop(true);
         }
+        chart.clear();
+        resetData(true);
+        chart.setVisibleXRangeMinimum(1);
+        chart.setVisibleXRangeMaximum(sampleCount);
+        clean();
+        if (streamRoute != null) {
+            streamRoute.remove();
+            streamRoute = null;
+        }
+//        chart.resetTracking();
+//        chart.clear();
+//        resetData(clearData);
+//        chart.invalidate();
+//        chart.fitScreen();
+//        if (ledModule != null){
+//            ledModule.stop(true);
+//        }
     }
 
     protected void initializeChart() {

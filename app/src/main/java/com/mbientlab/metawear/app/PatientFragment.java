@@ -146,7 +146,9 @@ public class PatientFragment extends PatientFragmentBase {
 
     @Override
     protected void clean() {
-        sensorFusion.stop();
+        if (sensorFusion != null) {
+            sensorFusion.stop();
+        }
     }
 
     @Override
