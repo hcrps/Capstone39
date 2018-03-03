@@ -85,6 +85,7 @@ public class PatientFragment extends PatientFragmentBase {
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
     private int capacity = 256; //this is the maximum number of entries we will have in the circular arrays
+    int Fs = 100; //the sampling frequency
     private final ArrayList<Entry> x0 = new ArrayList<>(capacity), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;
 
@@ -93,6 +94,7 @@ public class PatientFragment extends PatientFragmentBase {
     ArrayList<Double> yaw_data = new ArrayList<>();
 
     Filtration filtration = new Filtration();
+    InitialPeriodicMotionDetector initDetector = new InitialPeriodicMotionDetector(Fs, capacity);
     //ADD CLASS HERE
 
     public float pitch, roll, yaw;
@@ -215,6 +217,8 @@ public class PatientFragment extends PatientFragmentBase {
         // CALL TO GET isPeriodic and freq HERE
         // isPeriodic = **** boolean
         // freqText = ***** float
+        boolean isPeriodic = initDetector.isPeriodic(pitch_data, roll_data, yaw_data);
+        float freqText = (float)initDetector.getPeak();;
 
 
         float p_f = pitch_data.get(0).floatValue();
@@ -237,6 +241,14 @@ public class PatientFragment extends PatientFragmentBase {
             prevUpdate1 = current;
 
             // try to display text - not sure if this will work yet!
+            //Janelle replacing text 1 and 2 to test Periodicity
+            /*text1 = freqText;
+            if(isPeriodic){
+                text2 = 1f;
+            }
+            else
+                text2 = 0f;
+            //text2 = r_f;*/
             text1 = p_f;
             text2 = r_f;
             text3 = y_f;
