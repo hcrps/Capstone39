@@ -216,9 +216,22 @@ public class PatientFragment extends PatientFragmentBase {
 
         // CALL TO GET isPeriodic and freq HERE
         // isPeriodic = **** boolean
-        // freqText = ***** float
-        boolean isPeriodic = initDetector.isPeriodic(pitch_data, roll_data, yaw_data);
-        float freqText = (float)initDetector.getPeak();;
+        // freqtext = ***** float
+        isPeriodic = initDetector.isPeriodic(pitch_data, roll_data, yaw_data);
+        freqtext = (float)initDetector.getFreq();
+        double magnitude = initDetector.getMag();
+
+        if(isPeriodic){
+            double timechange = (1 /freqtext) * 1000;
+            // System.out.println("TIME CHANGE: " + timechange + " Current " + (System.currentTimeMillis() - prevUpdate));
+            //  System.out.println("IS PERIODIC: " + isPeriodic + " FREQ " + freqtext + " MAG " + magnitude + " " +  initDetectorList.getPeakDetected());
+
+            long currentrep = System.currentTimeMillis();
+            if (prevUpdate == -1 || (currentrep - prevUpdate) >= timechange) {
+                prevUpdate = currentrep;
+                numReps++;
+            }
+        }
 
 
         float p_f = pitch_data.get(0).floatValue();
@@ -228,16 +241,20 @@ public class PatientFragment extends PatientFragmentBase {
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200) {
             ledModule.stop(true);
             if(isPeriodic){
+                configureChannel(ledModule.editPattern(Led.Color.GREEN, Led.PatternPreset.BLINK));
+                configureChannel(ledModule.editPattern(Led.Color.GREEN).pulseDuration((short)(1)));
                 configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
                 configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(0)));
             }
             else{
 
+                configureChannel(ledModule.editPattern(Led.Color.GREEN, Led.PatternPreset.BLINK));
+                configureChannel(ledModule.editPattern(Led.Color.GREEN).pulseDuration((short)(0)));
                 configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
                 configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(1)));
             }
             ledModule.play();
-            numReps++;
+            //numReps++;
             prevUpdate1 = current;
 
             // try to display text - not sure if this will work yet!
