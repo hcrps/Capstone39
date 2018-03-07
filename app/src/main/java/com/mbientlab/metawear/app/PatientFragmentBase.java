@@ -95,18 +95,18 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         this.max= max;
     }
 
-    protected void updateChart() {
-        long current = System.currentTimeMillis();
-        if (prevUpdate == -1 || (current - prevUpdate) >= 500) {
-            prevUpdate = current;
-            chartHandler.post(() -> {
-                chart.getData().notifyDataChanged();
-                chart.notifyDataSetChanged();
-
-                moveViewToLast();
-            });
-        }
-    }
+//    protected void updateChart() {
+//        long current = System.currentTimeMillis();
+//        if (prevUpdate == -1 || (current - prevUpdate) >= 500) {
+//            prevUpdate = current;
+//            chartHandler.post(() -> {
+//                chart.getData().notifyDataChanged();
+//                chart.notifyDataSetChanged();
+//
+//                moveViewToLast();
+//            });
+//        }
+//    }
     private void moveViewToLast() {
         chart.setVisibleXRangeMinimum(120);
         chart.setVisibleXRangeMaximum(120);

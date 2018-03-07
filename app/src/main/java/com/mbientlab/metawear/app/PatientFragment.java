@@ -206,9 +206,15 @@ public class PatientFragment extends PatientFragmentBase {
         pitch_data.add(0, p);
         roll_data.add(0,r);
         yaw_data.add(0,y);
-        pitch_data.remove(capacity);
-        roll_data.remove(capacity);
-        yaw_data.remove(capacity);
+        if (pitch_data.size() > capacity){
+            pitch_data.remove(capacity);
+        }
+        if (roll_data.size() > capacity) {
+            roll_data.remove(capacity);
+        }
+        if (yaw_data.size() > capacity) {
+            yaw_data.remove(capacity);
+        }
 
         pitch_data = filtration.Filter(pitch_data, capacity, "pitch");
         roll_data = filtration.Filter(roll_data, capacity, "roll");
@@ -222,50 +228,39 @@ public class PatientFragment extends PatientFragmentBase {
         double magnitude = initDetector.getMag();
 
         if(isPeriodic){
-            double timechange = (1 /freqtext) * 1000;
-            // System.out.println("TIME CHANGE: " + timechange + " Current " + (System.currentTimeMillis() - prevUpdate));
-            //  System.out.println("IS PERIODIC: " + isPeriodic + " FREQ " + freqtext + " MAG " + magnitude + " " +  initDetectorList.getPeakDetected());
-
-            long currentrep = System.currentTimeMillis();
-            if (prevUpdate == -1 || (currentrep - prevUpdate) >= timechange) {
-                prevUpdate = currentrep;
+            current = System.currentTimeMillis();
+            if (prevUpdate == -1 || (current - prevUpdate) >= (1f/freqtext) * 1000f) {
+                prevUpdate = current;
                 numReps++;
             }
         }
+        else{
+            numReps = 0;
+        }
 
 
-        float p_f = pitch_data.get(0).floatValue();
-        float r_f = roll_data.get(0).floatValue();
-        float y_f = yaw_data.get(0).floatValue();
 
+        current = System.currentTimeMillis();
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200) {
+//            float p_f = pitch_data.get(0).floatValue();
+//            float r_f = roll_data.get(0).floatValue();
+//            float y_f = yaw_data.get(0).floatValue();
+            float p_f = pitch;
+            float r_f = roll;
+            float y_f = yaw;
+
             ledModule.stop(true);
             if(isPeriodic){
                 configureChannel(ledModule.editPattern(Led.Color.GREEN, Led.PatternPreset.BLINK));
                 configureChannel(ledModule.editPattern(Led.Color.GREEN).pulseDuration((short)(1)));
-                configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
-                configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(0)));
             }
             else{
-
-                configureChannel(ledModule.editPattern(Led.Color.GREEN, Led.PatternPreset.BLINK));
-                configureChannel(ledModule.editPattern(Led.Color.GREEN).pulseDuration((short)(0)));
                 configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
                 configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(1)));
             }
             ledModule.play();
-            //numReps++;
             prevUpdate1 = current;
 
-            // try to display text - not sure if this will work yet!
-            //Janelle replacing text 1 and 2 to test Periodicity
-            /*text1 = freqText;
-            if(isPeriodic){
-                text2 = 1f;
-            }
-            else
-                text2 = 0f;
-            //text2 = r_f;*/
             text1 = p_f;
             text2 = r_f;
             text3 = y_f;
