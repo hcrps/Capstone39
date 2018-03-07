@@ -78,13 +78,12 @@ public class PatientFragment extends PatientFragmentBase {
     private static final float SAMPLING_PERIOD = 1 / 200f;
     private final Handler chartHandler= new Handler();
     private long prevUpdate1 = -1;
-    private long prevUpdate2 = -1;
 
-    private int srcIndex = 1;
+    private boolean rep = false;
 
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
-    private int capacity = 256; //this is the maximum number of entries we will have in the circular arrays
+    private int capacity = 1024; //this is the maximum number of entries we will have in the circular arrays
     int Fs = 100; //the sampling frequency
     private final ArrayList<Entry> x0 = new ArrayList<>(capacity), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;
@@ -94,7 +93,8 @@ public class PatientFragment extends PatientFragmentBase {
     ArrayList<Double> yaw_data = new ArrayList<>();
 
     Filtration filtration = new Filtration();
-    InitialPeriodicMotionDetector initDetector = new InitialPeriodicMotionDetector(Fs, capacity);
+    RepetitiveDetector motion = new RepetitiveDetector();
+//    InitialPeriodicMotionDetector initDetector = new InitialPeriodicMotionDetector(Fs, capacity);
     //ADD CLASS HERE
 
     public float pitch, roll, yaw;
@@ -178,6 +178,11 @@ public class PatientFragment extends PatientFragmentBase {
         spinAxisData.get(2).setColor(Color.rgb(255, 184, 108));
         spinAxisData.get(2).setDrawCircles(false);
 
+        spinAxisData.add(new LineDataSet(x0, "peaks"));
+        spinAxisData.get(3).setCircleColor(Color.rgb(0,0,0));
+//        spinAxisData.get(3).setColor(Color.rgb(0, 0, 0));
+        spinAxisData.get(3).setDrawCircles(true);
+
         LineData data = new LineData(chartXValues);
         for (LineDataSet set : spinAxisData) {
             data.addDataSet(set);
@@ -223,28 +228,25 @@ public class PatientFragment extends PatientFragmentBase {
         // CALL TO GET isPeriodic and freq HERE
         // isPeriodic = **** boolean
         // freqtext = ***** float
-        isPeriodic = initDetector.isPeriodic(pitch_data, roll_data, yaw_data);
-        freqtext = (float)initDetector.getFreq();
-        double magnitude = initDetector.getMag();
+//        isPeriodic = initDetector.isPeriodic(pitch_data, roll_data, yaw_data);
+//        freqtext = (float)initDetector.getFreq();
+//        double magnitude = initDetector.getMag();
+
+        isPeriodic = motion.isPeriodic(pitch_data);
+        freqtext = (float) motion.getfreq();
+        motionError = motion.isMotionError();
 
         if(isPeriodic){
             current = System.currentTimeMillis();
             if (prevUpdate == -1 || (current - prevUpdate) >= (1f/freqtext) * 1000f) {
                 prevUpdate = current;
                 numReps++;
+                rep = true;
             }
         }
-        else{
-            numReps = 0;
-        }
-
-
 
         current = System.currentTimeMillis();
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200) {
-//            float p_f = pitch_data.get(0).floatValue();
-//            float r_f = roll_data.get(0).floatValue();
-//            float y_f = yaw_data.get(0).floatValue();
             float p_f = pitch;
             float r_f = roll;
             float y_f = yaw;
@@ -266,20 +268,22 @@ public class PatientFragment extends PatientFragmentBase {
             text3 = y_f;
 
             // THIS IS WHAT WAS WORKING IN THE LAST DEMO, do not touch
-            if (srcIndex == 1) {
-                chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-                chartData.addEntry(new Entry(p_f, sampleCount), 0);
-                chartData.addEntry(new Entry(r_f, sampleCount), 1);
-                chartData.addEntry(new Entry(y_f, sampleCount), 2);
-                chart.getData().notifyDataChanged();
-                chart.notifyDataSetChanged();
-                chartData.removeEntry(0, 1);
-                chartData.removeEntry(0, 2);
-                chartData.removeEntry(0, 3);
-
-                moveViewToLast();
-                sampleCount++;
+            chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
+            chartData.addEntry(new Entry(p_f, sampleCount), 0);
+            chartData.addEntry(new Entry(r_f, sampleCount), 1);
+            chartData.addEntry(new Entry(y_f, sampleCount), 2);
+            if (rep) {
+                chartData.addEntry(new Entry(0f, sampleCount), 3);
+                rep = false;
             }
+            chart.getData().notifyDataChanged();
+            chart.notifyDataSetChanged();
+            chartData.removeEntry(0, 1);
+            chartData.removeEntry(0, 2);
+            chartData.removeEntry(0, 3);
+
+            moveViewToLast();
+            sampleCount++;
         }
     }
     private void moveViewToLast() {
