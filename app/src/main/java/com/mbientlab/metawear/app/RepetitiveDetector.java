@@ -40,9 +40,6 @@ public class RepetitiveDetector {
                 else
                     trending = 1;
             }
-//            else if (Math.abs(data.get(i)-data.get(i-downsample)) < data.get(i-downsample)*0.1){
-//                trending = 0;
-//            }
             else if(trending == -1) { //trending downward so looking for a min
                 if (data.get(i) > data.get(i + downsample)) {
                     min.add(k, i);
