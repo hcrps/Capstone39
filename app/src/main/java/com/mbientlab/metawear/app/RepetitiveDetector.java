@@ -3,22 +3,11 @@ package com.mbientlab.metawear.app;
 import java.util.ArrayList;
 
 public class RepetitiveDetector {
-    double motionFrequency;
+    double motionFrequency = 0;
     boolean isPeriodic;
     boolean motionError;
+    boolean toofast;
     int trending = 0;
-
-//    public static int GetRepCount(double pitch, double yaw, double roll) {
-//
-//    /*double timechange = (1 / freq) * 1000;
-//
-//        long current = System.currentTimeMillis();
-//        if (prevUpdate == -1 || (current - prevUpdate) >= timechange) {
-//            prevUpdate = current;
-//            RepCount++;
-//        }*/
-//        return 1;
-//    }
 
     public double getfreq(){
         return motionFrequency;
@@ -28,13 +17,17 @@ public class RepetitiveDetector {
         return motionError;
     }
 
+    public boolean isToofast(){
+        return toofast;
+    }
+
     public boolean isPeriodic(ArrayList<Double> data) {
         ArrayList<Integer> min = new ArrayList<Integer>();
         ArrayList<Integer> max = new ArrayList<Integer>();
-        ArrayList<Double> frequency = new ArrayList<Double>();
-
+//        ArrayList<Double> frequency = new ArrayList<Double>();
         isPeriodic = false;
         motionError = false;
+        toofast = false;
 
         int downsample = 40;
         int p = 0;
@@ -47,6 +40,9 @@ public class RepetitiveDetector {
                 else
                     trending = 1;
             }
+//            else if (Math.abs(data.get(i)-data.get(i-downsample)) < data.get(i-downsample)*0.1){
+//                trending = 0;
+//            }
             else if(trending == -1) { //trending downward so looking for a min
                 if (data.get(i) > data.get(i + downsample)) {
                     min.add(k, i);
@@ -56,15 +52,22 @@ public class RepetitiveDetector {
                             //isPeriodic true
                             isPeriodic = true;
                             double frequency_val = (1 / (min_difference / 100));
-                            motionFrequency = frequency_val;
-                            if (min_difference > 500 || min_difference < 300)
-                                motionError = true;
+                            motionFrequency = (frequency_val + motionFrequency)/2;
+                            motionError = true;
+                            if (min_difference > 500)
+                                toofast = false;
+                            else if (min_difference < 300)
+                                toofast = true;
                             else
                                 motionError = false;
                         }
                     }
                     trending = 1;
                     k++;
+                }
+                else if (data.get(i).equals(data.get(i + downsample))){
+                    trending = 0;
+                    motionFrequency = (0 + motionFrequency)/2;
                 }
             }
             else if(trending == 1) {// trending upward so looking for max
@@ -76,15 +79,22 @@ public class RepetitiveDetector {
                             //isPeriodic true
                             isPeriodic = true;
                             double frequency_val = (1 / (max_difference / 100));
-                            motionFrequency = frequency_val;
-                            if (max_difference > 500 || max_difference < 300)
-                                motionError = true;
+                            motionFrequency = (frequency_val + motionFrequency)/2;
+                            motionError = true;
+                            if (max_difference > 500)
+                                toofast = false;
+                            else if (max_difference < 300)
+                                toofast = true;
                             else
                                 motionError = false;
                         }
                     }
                     trending = -1;
                     p++;
+                }
+                else if (data.get(i).equals(data.get(i + downsample))){
+                    trending = 0;
+                    motionFrequency = (0 + motionFrequency)/2;
                 }
             }
 

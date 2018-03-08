@@ -52,6 +52,8 @@ import com.github.mikephil.charting.data.LineData;
 import com.mbientlab.metawear.Route;
 import com.mbientlab.metawear.module.Led;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,6 +71,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
 
     protected boolean isPeriodic = false;
     protected boolean motionError = false;
+    protected boolean toofast = false;
 
     protected int numReps = 0;
     private TextView repsText;
@@ -78,6 +81,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     private TextView rollText;
     private TextView yawText;
     private TextView isPText;
+    private TextView errorText;
 
     protected float min, max;
     protected Route streamRoute = null;
@@ -154,11 +158,14 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         repsText.setText(getString(R.string.label_reps, numReps));
         isPText = (TextView) view.findViewById(R.id.layout_two_text_right);
         isPText.setText(R.string.label_not_periodic);
+        errorText = (TextView) view.findViewById(R.id.layout_one_text);
+        errorText.setText(R.string.label_no_motion);
+
         textUpdateHandler.post( new RptUpdater() );
 
-        Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
-        clearButton.setOnClickListener(view1 -> refreshChart(true));
-        clearButton.setText(R.string.label_clear);
+//        Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
+//        clearButton.setOnClickListener(view1 -> refreshChart(true));
+//        clearButton.setText(R.string.label_clear);
 
         ((Switch) view.findViewById(R.id.sample_control)).setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
@@ -178,11 +185,6 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
                     streamRoute = null;
                 }
             }
-        });
-
-        Button saveButton= (Button) view.findViewById(R.id.layout_two_button_right);
-//        saveButton.setText(R.string.label_empty);
-        saveButton.setOnClickListener(view12 -> {
         });
     }
 
@@ -227,9 +229,21 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         repsText.setText(getString(R.string.label_reps, numReps));
         if (isPeriodic){
             isPText.setText(getString(R.string.label_is_periodic, freqtext));
+            if (motionError){
+                if (toofast) {
+                    errorText.setText(R.string.label_too_fast);
+                }
+                else {
+                    errorText.setText(R.string.label_too_slow);
+                }
+            }
+            else{
+                errorText.setText(R.string.label_no_error);
+            }
         }
         else{
             isPText.setText(R.string.label_not_periodic);
+            errorText.setText(R.string.label_no_motion);
         }
     }
 

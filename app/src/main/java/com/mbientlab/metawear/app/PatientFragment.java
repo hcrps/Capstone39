@@ -162,6 +162,7 @@ public class PatientFragment extends PatientFragmentBase {
             x0.clear();
             x1.clear();
             x2.clear();
+            x3.clear();
         }
 
         ArrayList<LineDataSet> spinAxisData = new ArrayList<>();
@@ -179,8 +180,8 @@ public class PatientFragment extends PatientFragmentBase {
         spinAxisData.get(2).setDrawCircles(false);
 
         spinAxisData.add(new LineDataSet(x0, "peaks"));
-        spinAxisData.get(3).setCircleColor(Color.rgb(0,0,0));
-//        spinAxisData.get(3).setColor(Color.rgb(0, 0, 0));
+        spinAxisData.get(3).setCircleColor(Color.rgb(255,255,255));
+        spinAxisData.get(3).setColor(Color.rgb(255, 255, 255));
         spinAxisData.get(3).setDrawCircles(true);
 
         LineData data = new LineData(chartXValues);
@@ -235,6 +236,7 @@ public class PatientFragment extends PatientFragmentBase {
         isPeriodic = motion.isPeriodic(pitch_data);
         freqtext = (float) motion.getfreq();
         motionError = motion.isMotionError();
+        toofast = motion.isToofast();
 
         if(isPeriodic){
             current = System.currentTimeMillis();
@@ -246,10 +248,12 @@ public class PatientFragment extends PatientFragmentBase {
         }
 
         current = System.currentTimeMillis();
-        if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200) {
-            float p_f = pitch;
-            float r_f = roll;
-            float y_f = yaw;
+        if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200 || rep) {
+            prevUpdate1 = current;
+
+            float p_f = pitch_data.get(0).floatValue();
+            float r_f = roll_data.get(0).floatValue();
+            float y_f = yaw_data.get(0).floatValue();
 
             ledModule.stop(true);
             if(isPeriodic){
@@ -261,7 +265,6 @@ public class PatientFragment extends PatientFragmentBase {
                 configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(1)));
             }
             ledModule.play();
-            prevUpdate1 = current;
 
             text1 = p_f;
             text2 = r_f;
