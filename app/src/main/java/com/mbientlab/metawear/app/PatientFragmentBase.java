@@ -159,7 +159,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         isPText = (TextView) view.findViewById(R.id.layout_two_text_right);
         isPText.setText(R.string.label_not_periodic);
         errorText = (TextView) view.findViewById(R.id.layout_one_text);
-        errorText.setText(R.string.label_no_motion);
+     //   errorText.setText(R.string.label_no_motion);
 
         textUpdateHandler.post( new RptUpdater() );
 
