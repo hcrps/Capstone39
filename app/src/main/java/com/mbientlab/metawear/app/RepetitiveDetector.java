@@ -43,6 +43,7 @@ public class RepetitiveDetector {
     public boolean isPeriodic(ArrayList<Double> data) {
         ArrayList<Integer> min = new ArrayList<Integer>();
         ArrayList<Integer> max = new ArrayList<Integer>();
+//        ArrayList<Double> frequency = new ArrayList<Double>();
         isPeriodic = false;
         motionError = false;
         toofast = false;
@@ -50,18 +51,20 @@ public class RepetitiveDetector {
         int downsample = 40;
         int p = 0;
         int k = 0;
+        entries++;
+
         if(entries%downsample == 0){
             checkForReps(data.get(0), entries);
         }
-        entries++;
 
-        for(int i = 0; i < (data.size()-downsample); i+=40) {
+        for(int i = 0; i < (data.size()-downsample); i+=40){
             if (trending == 0) { //no known trend yet
                 if (data.get(i) < data.get(i + downsample)) //i + downsampled because data(0) more recent
                     trending = -1;
                 else
                     trending = 1;
-            } else if (trending == -1) { //trending downward so looking for a min
+            }
+            else if(trending == -1) { //trending downward so looking for a min
                 if (data.get(i) > data.get(i + downsample)) {
                     min.add(k, i);
                     if (k != 0) {
@@ -70,7 +73,7 @@ public class RepetitiveDetector {
                             //isPeriodic true
                             isPeriodic = true;
                             double frequency_val = (1 / (min_difference / 100));
-                            motionFrequency = (frequency_val + motionFrequency) / 2;
+                            motionFrequency = (frequency_val + motionFrequency)/2;
                             motionError = true;
                             if (min_difference > 500)
                                 toofast = false;
@@ -82,11 +85,13 @@ public class RepetitiveDetector {
                     }
                     trending = 1;
                     k++;
-                } else if (data.get(i).equals(data.get(i + downsample))) {
-                    trending = 0;
-                    motionFrequency = (0 + motionFrequency) / 2;
                 }
-            } else if (trending == 1) {// trending upward so looking for max
+                else if (data.get(i).equals(data.get(i + downsample))){
+                    trending = 0;
+                    motionFrequency = (0 + motionFrequency)/2;
+                }
+            }
+            else if(trending == 1) {// trending upward so looking for max
                 if (data.get(i) < data.get(i + downsample)) {
                     max.add(p, i);
                     if (p != 0) {
@@ -95,7 +100,7 @@ public class RepetitiveDetector {
                             //isPeriodic true
                             isPeriodic = true;
                             double frequency_val = (1 / (max_difference / 100));
-                            motionFrequency = (frequency_val + motionFrequency) / 2;
+                            motionFrequency = (frequency_val + motionFrequency)/2;
                             motionError = true;
                             if (max_difference > 500)
                                 toofast = false;
@@ -107,16 +112,14 @@ public class RepetitiveDetector {
                     }
                     trending = -1;
                     p++;
-                } else if (data.get(i).equals(data.get(i + downsample))) {
+                }
+                else if (data.get(i).equals(data.get(i + downsample))){
                     trending = 0;
-                    motionFrequency = (0 + motionFrequency) / 2;
+                    motionFrequency = (0 + motionFrequency)/2;
                 }
             }
 
         }
-
-        prevVals = (ArrayList<Double>)data.clone();
-        timestamp = System.currentTimeMillis();
         return isPeriodic;
     }
 
