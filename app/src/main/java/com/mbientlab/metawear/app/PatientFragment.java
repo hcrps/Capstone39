@@ -237,16 +237,16 @@ public class PatientFragment extends PatientFragmentBase {
         freqtext = (float) motion.getfreq();
         motionError = motion.isMotionError();
         toofast = motion.isToofast();
-        numReps = motion.getRepCount();
+//        numReps = motion.getRepCount();
 
-        /*if(isPeriodic){
+        if(isPeriodic){
             current = System.currentTimeMillis();
             if (prevUpdate == -1 || (current - prevUpdate) >= (1f/freqtext) * 1000f) {
                 prevUpdate = current;
                 numReps++;
                 rep = true;
             }
-        }*/
+        }
 
         current = System.currentTimeMillis();
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200 || rep) {
