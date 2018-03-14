@@ -238,6 +238,7 @@ public class PatientFragment extends PatientFragmentBase {
         motionError = motion.isMotionError();
         toofast = motion.isToofast();
         numReps = motion.getRepCount();
+        percentThreshold = motion.percentThreshold();
 
         /*if(isPeriodic){
             current = System.currentTimeMillis();

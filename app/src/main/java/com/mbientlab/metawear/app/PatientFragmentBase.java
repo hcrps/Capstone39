@@ -74,6 +74,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     protected boolean toofast = false;
 
     protected int numReps = 0;
+    protected double percentThreshold = 0;
     private TextView repsText;
 
     static int REP_DELAY = 50;

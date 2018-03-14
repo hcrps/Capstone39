@@ -2,20 +2,25 @@ package com.mbientlab.metawear.app;
 
 import java.util.ArrayList;
 
+/**
+ * Created by Janelle on 03/06/2018.
+ */
+
 public class RepetitiveDetector {
     double motionFrequency = 0;
     boolean isPeriodic;
     boolean motionError;
     boolean toofast;
-    float timestamp;
     int trending = 0;
 
-    ArrayList<Double> prevVals = new ArrayList<Double>();
     int entries = 0;
 
     int numMins = 0;
     int numMaxes = 0;
     double ideal_p2p;
+    double upperbound;
+    double lowerbound;
+    double difference;
     int RepCount = 0;
     ArrayList<Double> pastEntries = new ArrayList<Double>();
     int lastMinIndex = -1;
@@ -39,6 +44,26 @@ public class RepetitiveDetector {
     }
 
     public int getRepCount() {return RepCount;}
+
+    /*public double upperlimit(){return upperbound;}
+
+    public double lowerlimit(){return lowerbound;}
+
+    public double currPk2Pk(){return difference;}*/
+
+    public double percentThreshold(){
+        double percent;
+        if(difference <= lowerbound){
+            percent = 0.0;
+        }
+        else if(difference >= upperbound){
+            percent = 100;
+        }
+        else{
+            percent = ((upperbound - difference)/(upperbound - lowerbound))*100;
+        }
+        return percent;
+    }
 
     public boolean isPeriodic(ArrayList<Double> data) {
         ArrayList<Integer> min = new ArrayList<Integer>();
@@ -164,16 +189,16 @@ public class RepetitiveDetector {
         }
         if(newMax == 1 && newMin == 1){
             if(numMaxes == numMins && numMaxes == 1) {
-                double difference = (repMaxVal - repMinVal);
+                difference = (repMaxVal - repMinVal);
                 ideal_p2p = difference;
                 RepCount = 1;
                 newMax = 0;
                 newMin = 0;
             }
             else if (numMaxes == numMins && numMaxes != 0) {
-                double difference = repMaxVal - repMinVal;
-                double lowerbound = ideal_p2p - (ideal_p2p * 0.2);
-                double upperbound = (ideal_p2p * 0.2) + ideal_p2p;
+                difference = repMaxVal - repMinVal;
+                lowerbound = ideal_p2p - (ideal_p2p * 0.2);
+                upperbound = (ideal_p2p * 0.2) + ideal_p2p;
                 if (numMaxes < 4 && difference < upperbound && difference > lowerbound) {
                     ideal_p2p = (ideal_p2p + difference) / 2;
                     RepCount++;
