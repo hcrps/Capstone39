@@ -7,7 +7,7 @@
     <include layout="@layout/layout_two_text" />
     <include layout="@layout/layout_three_text" />
 
-    <com.mbientlab.metawear.app.CustomSeekBar
+<!--    <com.mbientlab.metawear.app.CustomSeekBar
         android:id="@+id/customSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         android:progress="0"
         android:progressDrawable="@android:color/transparent"
         android:thumb="@drawable/seek_thumb_normal"
-        android:thumbOffset="12dp" />
+        android:thumbOffset="12dp" />-->
 
     <include layout="@layout/component_line_chart" />
 

@@ -31,6 +31,8 @@ public class RepetitiveDetector {
     int newMax = 0;
     int newMin = 0;
 
+    int resetCalib = 0;
+
     public double getfreq(){
         return motionFrequency;
     }
@@ -45,11 +47,7 @@ public class RepetitiveDetector {
 
     public int getRepCount() {return RepCount;}
 
-    /*public double upperlimit(){return upperbound;}
-
-    public double lowerlimit(){return lowerbound;}
-
-    public double currPk2Pk(){return difference;}*/
+    public int getResetCalib() {return resetCalib;}
 
     public double percentThreshold(){
         double percent;
@@ -78,6 +76,8 @@ public class RepetitiveDetector {
         int k = 0;
         entries++;
 
+        resetCalib = 0;
+
         if(entries%downsample == 0){
             checkForReps(data.get(0), entries);
         }
@@ -98,7 +98,11 @@ public class RepetitiveDetector {
                             //isPeriodic true
                             isPeriodic = true;
                             double frequency_val = (1 / (min_difference / 100));
-                            motionFrequency = (frequency_val + motionFrequency)/2;
+                            // System.out.println("Freq Val "  + frequency_val + " motion Freq " + motionFrequency);
+                            if( motionFrequency != 0)
+                                motionFrequency = (frequency_val + motionFrequency)/2;
+                            else
+                                motionFrequency = frequency_val;
                             motionError = true;
                             if (min_difference > 500)
                                 toofast = false;
@@ -113,7 +117,7 @@ public class RepetitiveDetector {
                 }
                 else if (data.get(i).equals(data.get(i + downsample))){
                     trending = 0;
-                    motionFrequency = (0 + motionFrequency)/2;
+                    // motionFrequency = 0;//(0 + motionFrequency)/2;
                 }
             }
             else if(trending == 1) {// trending upward so looking for max
@@ -125,7 +129,10 @@ public class RepetitiveDetector {
                             //isPeriodic true
                             isPeriodic = true;
                             double frequency_val = (1 / (max_difference / 100));
-                            motionFrequency = (frequency_val + motionFrequency)/2;
+                            if(motionFrequency != 0)
+                                motionFrequency = (frequency_val + motionFrequency)/2;
+                            else
+                                motionFrequency = frequency_val;
                             motionError = true;
                             if (max_difference > 500)
                                 toofast = false;
@@ -140,7 +147,7 @@ public class RepetitiveDetector {
                 }
                 else if (data.get(i).equals(data.get(i + downsample))){
                     trending = 0;
-                    motionFrequency = (0 + motionFrequency)/2;
+                    //  motionFrequency = 0;//(0 + motionFrequency)/2;
                 }
             }
 
@@ -202,14 +209,20 @@ public class RepetitiveDetector {
                 if (numMaxes < 4 && difference < upperbound && difference > lowerbound) {
                     ideal_p2p = (ideal_p2p + difference) / 2;
                     RepCount++;
-                } else if (difference < upperbound && difference > lowerbound)
+                    if(numMaxes == 3)
+                        System.out.println("Calibration Complete ");
+                }
+                else if (difference < upperbound && difference > lowerbound)
                     RepCount++;
-                else {
+                else if (numMaxes < 4 && (difference >= upperbound ||difference <= lowerbound)) {
                     numMaxes = 1;
                     numMins = 1;
                     RepCount = 1;
                     ideal_p2p = difference;
+                    resetCalib = 1;
                 }
+                else
+                    System.out.println("Repetition out of bounds");
                 newMax = 0;
                 newMin = 0;
             }

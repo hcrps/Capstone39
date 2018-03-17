@@ -237,8 +237,13 @@ public class PatientFragment extends PatientFragmentBase {
         freqtext = (float) motion.getfreq();
         motionError = motion.isMotionError();
         toofast = motion.isToofast();
+        double oldRepCount = numReps;
+        int resetCal = motion.getResetCalib();
         numReps = motion.getRepCount();
-        percentThreshold = motion.percentThreshold();
+        if((oldRepCount != numReps) || resetCal ==1)
+            rep = true;
+        //Kahlan this is where the percent for amplitude is
+        double percent = motion.percentThreshold();
 
         /*if(isPeriodic){
             current = System.currentTimeMillis();
