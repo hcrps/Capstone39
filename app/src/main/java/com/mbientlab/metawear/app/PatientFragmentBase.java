@@ -59,6 +59,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.mbientlab.metawear.app.ProgressItem;
+
 /**
  * Created by kahlan on 02/02/2018.
  */
@@ -93,6 +95,16 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     private final Handler chartHandler= new Handler();
 
     protected float text1, text2, text3, freqtext;
+
+    private CustomSeekBar seekbar;
+    private float totalSpan = 1500;
+    private float redSpan = 200;
+    private float blueSpan = 300;
+    private float greenSpan = 400;
+    private float yellowSpan = 150;
+    private float darkGreySpan;
+    private ArrayList<ProgressItem> progressItemList;
+    private ProgressItem mProgressItem;
 
     protected PatientFragmentBase(int sensorResId, int layoutId, float min, float max) {
         super(sensorResId);
@@ -136,6 +148,11 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // SEEKBAR
+        seekbar = ((CustomSeekBar) view.findViewById(R.id.customSeekBar));
+        initDataToSeekbar();
+        //
 
         chart = (LineChart) view.findViewById(R.id.data_chart);
 
@@ -187,6 +204,38 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
                 }
             }
         });
+    }
+
+    private void initDataToSeekbar() {
+        progressItemList = new ArrayList<ProgressItem>();
+        // red span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = ((redSpan / totalSpan) * 100);
+        mProgressItem.color = R.color.red;
+        progressItemList.add(mProgressItem);
+        // blue span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (blueSpan / totalSpan) * 100;
+        mProgressItem.color = R.color.blue;
+        progressItemList.add(mProgressItem);
+        // green span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (greenSpan / totalSpan) * 100;
+        mProgressItem.color = R.color.green;
+        progressItemList.add(mProgressItem);
+        // yellow span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (yellowSpan / totalSpan) * 100;
+        mProgressItem.color = R.color.yellow;
+        progressItemList.add(mProgressItem);
+        // greyspan
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (darkGreySpan / totalSpan) * 100;
+        mProgressItem.color = R.color.grey;
+        progressItemList.add(mProgressItem);
+
+        seekbar.initData(progressItemList);
+        seekbar.invalidate();
     }
 
     protected void refreshChart(boolean clearData) {
