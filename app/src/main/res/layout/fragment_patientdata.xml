@@ -5,26 +5,50 @@
     <include layout="@layout/component_sampling_control" />
     <include layout="@layout/layout_one_text" />
 
-<com.mbientlab.metawear.app.CustomSeekBar
-        android:id="@+id/freqcustomSeekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="100"
-        android:progress="0"
-        android:progressDrawable="@android:color/transparent"
-        android:thumb="@drawable/seek_thumb_normal"
-        android:thumbOffset="12dp" />
 
-    <com.mbientlab.metawear.app.CustomSeekBar
-        android:id="@+id/movecustomSeekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="100"
-        android:progress="0"
-        android:progressDrawable="@android:color/transparent"
-        android:thumb="@drawable/seek_thumb_normal"
-        android:thumbOffset="12dp" />
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:weightSum="2"
+        android:orientation="horizontal">
+        <TextView android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Speed  "/>
+        <com.mbientlab.metawear.app.CustomSeekBar
+            android:id="@+id/freqcustomSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@android:color/transparent"
+            android:thumb="@drawable/seek_thumb_normal"
+            android:thumbOffset="12dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:weightSum="2"
+        android:orientation="horizontal">
+        <TextView android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Motion  "/>
+        <com.mbientlab.metawear.app.CustomSeekBar
+            android:id="@+id/movecustomSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@android:color/transparent"
+            android:thumb="@drawable/seek_thumb_normal"
+            android:thumbOffset="12dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
-    <include layout="@layout/component_line_chart" />
+    <include layout="@layout/component_line_chart"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
 
 </LinearLayout>

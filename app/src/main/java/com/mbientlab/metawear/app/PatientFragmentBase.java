@@ -305,7 +305,8 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     public void updatetext(){
         repsText.setText(getString(R.string.label_reps, numReps));
         if (isPeriodic){
-            freqseekbar.setProgress((int) (freqtext * 200.0));
+            int progress = (int) (freqtext * 40.0);
+            freqseekbar.setProgress(5*progress);
             moveseekbar.setProgress((int) percentMotion);
 //            if (motionError){
 //                if (toofast) {

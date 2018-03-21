@@ -36,4 +36,4 @@
     android:text="@string/label_begin_exercise"
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:id="@+id/sample_control"
-    android:checked="false" />
+    android:checked="false"/>
