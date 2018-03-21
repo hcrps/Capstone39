@@ -97,12 +97,12 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     protected float text1, text2, text3, freqtext;
 
     private CustomSeekBar seekbar;
-    private float totalSpan = 1500;
-    private float redSpan = 200;
-    private float blueSpan = 300;
-    private float greenSpan = 400;
-    private float yellowSpan = 150;
-    private float darkGreySpan;
+    private float totalSpan = 300; // from 0.10 to 0.40 Hz
+    private float slowspan = 50; // less than 0.15
+    private float slowmidspan = 50;
+    private float greenSpan = 100;
+    private float fastmidspan = 50;
+    private float fastspan;
     private ArrayList<ProgressItem> progressItemList;
     private ProgressItem mProgressItem;
 
@@ -210,28 +210,28 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         progressItemList = new ArrayList<ProgressItem>();
         // red span
         mProgressItem = new ProgressItem();
-        mProgressItem.progressItemPercentage = ((redSpan / totalSpan) * 100);
-        mProgressItem.color = R.color.red;
+        mProgressItem.progressItemPercentage = ((slowspan / totalSpan) * 100);
+        mProgressItem.colour = Color.rgb(255,85,85);
         progressItemList.add(mProgressItem);
         // blue span
         mProgressItem = new ProgressItem();
-        mProgressItem.progressItemPercentage = (blueSpan / totalSpan) * 100;
-        mProgressItem.color = R.color.blue;
+        mProgressItem.progressItemPercentage = (slowmidspan / totalSpan) * 100;
+        mProgressItem.colour = Color.rgb(241,250,140);
         progressItemList.add(mProgressItem);
         // green span
         mProgressItem = new ProgressItem();
         mProgressItem.progressItemPercentage = (greenSpan / totalSpan) * 100;
-        mProgressItem.color = R.color.green;
+        mProgressItem.colour = Color.rgb(80,250,123);
         progressItemList.add(mProgressItem);
         // yellow span
         mProgressItem = new ProgressItem();
-        mProgressItem.progressItemPercentage = (yellowSpan / totalSpan) * 100;
-        mProgressItem.color = R.color.yellow;
+        mProgressItem.progressItemPercentage = (fastmidspan / totalSpan) * 100;
+        mProgressItem.colour = Color.rgb(241,250,140);
         progressItemList.add(mProgressItem);
         // greyspan
         mProgressItem = new ProgressItem();
-        mProgressItem.progressItemPercentage = (darkGreySpan / totalSpan) * 100;
-        mProgressItem.color = R.color.grey;
+        mProgressItem.progressItemPercentage = (fastspan / totalSpan) * 100;
+        mProgressItem.colour = Color.rgb(255,85,85);
         progressItemList.add(mProgressItem);
 
         seekbar.initData(progressItemList);
@@ -279,6 +279,13 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         repsText.setText(getString(R.string.label_reps, numReps));
         if (isPeriodic){
             isPText.setText(getString(R.string.label_is_periodic, freqtext));
+            if (0.1 < freqtext && freqtext < 0.4) {
+                seekbar.setProgress((int) (freqtext - 0.1) * 100);
+            }
+            else if (freqtext < 0.1)
+                seekbar.setProgress(0);
+            else
+                seekbar.setProgress(100);
             if (motionError){
                 if (toofast) {
                     errorText.setText(R.string.label_too_fast);

@@ -51,8 +51,8 @@ public class CustomSeekBar extends android.support.v7.widget.AppCompatSeekBar {
             for (int i = 0; i < mProgressItemsList.size(); i++) {
                 ProgressItem progressItem = mProgressItemsList.get(i);
                 Paint progressPaint = new Paint();
-                progressPaint.setColor(getResources().getColor(
-                        progressItem.colour));
+                progressPaint.setColor(progressItem.colour);
+//                progressPaint.setColor(getResources().getColor(progressItem.colour));
 
                 progressItemWidth = (int) (progressItem.progressItemPercentage
                         * progressBarWidth / 100);
