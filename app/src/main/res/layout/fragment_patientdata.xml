@@ -4,11 +4,19 @@
 
     <include layout="@layout/component_sampling_control" />
     <include layout="@layout/layout_one_text" />
-    <include layout="@layout/layout_two_text" />
-    <include layout="@layout/layout_three_text" />
 
 <com.mbientlab.metawear.app.CustomSeekBar
-        android:id="@+id/customSeekBar"
+        android:id="@+id/freqcustomSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@android:color/transparent"
+        android:thumb="@drawable/seek_thumb_normal"
+        android:thumbOffset="12dp" />
+
+    <com.mbientlab.metawear.app.CustomSeekBar
+        android:id="@+id/movecustomSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="100"

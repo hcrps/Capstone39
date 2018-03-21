@@ -281,6 +281,7 @@
     <string name="label_commit">Commit</string>
     <string name="label_ok">OK</string>
     <string name="label_start_sample">Start Sampling</string>
+    <string name="label_begin_exercise">Begin Exercise</string>
     <string name="label_clear">Clear</string>
     <string name="label_pitch">Pitch: %.2f</string>
     <string name="label_roll">Roll: %.2f</string>

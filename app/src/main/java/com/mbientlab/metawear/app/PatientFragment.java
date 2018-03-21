@@ -93,7 +93,6 @@ public class PatientFragment extends PatientFragmentBase {
     ArrayList<Double> yaw_data = new ArrayList<>();
 
     Filtration filtration = new Filtration();
-    RepetitiveDetector motion = new RepetitiveDetector();
 //    InitialPeriodicMotionDetector initDetector = new InitialPeriodicMotionDetector(Fs, capacity);
     //ADD CLASS HERE
 
@@ -114,8 +113,8 @@ public class PatientFragment extends PatientFragmentBase {
         refreshChart(false);
         for (int i=0;i<capacity;i++){
             pitch_data.add(0.0);
-            pitch_data.add(0.0);
-            pitch_data.add(0.0);
+            roll_data.add(0.0);
+            yaw_data.add(0.0);
         }
     }
 
@@ -167,22 +166,18 @@ public class PatientFragment extends PatientFragmentBase {
 
         ArrayList<LineDataSet> spinAxisData = new ArrayList<>();
 
-        spinAxisData.add(new LineDataSet(x1, "pitch"));
-        spinAxisData.get(0).setColor(Color.rgb(139, 233, 253));
+        spinAxisData.add(new LineDataSet(x1, "Movement"));
+        spinAxisData.get(0).setColor(Color.rgb(255,85,85));
         spinAxisData.get(0).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x2, "roll"));
-        spinAxisData.get(1).setColor(Color.rgb(80, 250, 123));
-        spinAxisData.get(1).setDrawCircles(false);
-
-        spinAxisData.add(new LineDataSet(x3, "yaw"));
-        spinAxisData.get(2).setColor(Color.rgb(255, 184, 108));
-        spinAxisData.get(2).setDrawCircles(false);
+//        spinAxisData.add(new LineDataSet(x2, "Periodic"));
+//        spinAxisData.get(1).setColor(Color.rgb(80, 250, 123));
+//        spinAxisData.get(1).setDrawCircles(false);
 
         spinAxisData.add(new LineDataSet(x0, "peaks"));
-        spinAxisData.get(3).setCircleColor(Color.rgb(255,255,255));
-        spinAxisData.get(3).setColor(Color.rgb(255, 255, 255));
-        spinAxisData.get(3).setDrawCircles(true);
+        spinAxisData.get(1).setCircleColor(Color.rgb(255,255,255));
+        spinAxisData.get(1).setColor(Color.rgb(255, 255, 255));
+        spinAxisData.get(1).setDrawCircles(true);
 
         LineData data = new LineData(chartXValues);
         for (LineDataSet set : spinAxisData) {
@@ -206,6 +201,7 @@ public class PatientFragment extends PatientFragmentBase {
     protected void dataUpdate() {
         LineData chartData = chart.getData();
         long current = System.currentTimeMillis();
+        float data;
         double p = pitch;
         double r = roll;
         double y = yaw;
@@ -226,13 +222,6 @@ public class PatientFragment extends PatientFragmentBase {
         roll_data = filtration.Filter(roll_data, capacity, "roll");
         yaw_data = filtration.Filter(yaw_data, capacity, "yaw");
 
-        // CALL TO GET isPeriodic and freq HERE
-        // isPeriodic = **** boolean
-        // freqtext = ***** float
-//        isPeriodic = initDetector.isPeriodic(pitch_data, roll_data, yaw_data);
-//        freqtext = (float)initDetector.getFreq();
-//        double magnitude = initDetector.getMag();
-
         isPeriodic = motion.isPeriodic(pitch_data);
         freqtext = (float) motion.getfreq();
         motionError = motion.isMotionError();
@@ -242,55 +231,61 @@ public class PatientFragment extends PatientFragmentBase {
         numReps = motion.getRepCount();
         if((oldRepCount != numReps) || resetCal ==1)
             rep = true;
-        //Kahlan this is where the percent for amplitude is
-        double percent = motion.percentThreshold();
 
-        /*if(isPeriodic){
-            current = System.currentTimeMillis();
-            if (prevUpdate == -1 || (current - prevUpdate) >= (1f/freqtext) * 1000f) {
-                prevUpdate = current;
-                numReps++;
-                rep = true;
-            }
-        }*/
+        //Kahlan this is where the percent for amplitude is
+        percentMotion = motion.percentThreshold();
 
         current = System.currentTimeMillis();
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200 || rep) {
             prevUpdate1 = current;
 
-            float p_f = pitch_data.get(0).floatValue();
-            float r_f = roll_data.get(0).floatValue();
-            float y_f = yaw_data.get(0).floatValue();
-
-            ledModule.stop(true);
-            if(isPeriodic){
-                configureChannel(ledModule.editPattern(Led.Color.GREEN, Led.PatternPreset.BLINK));
-                configureChannel(ledModule.editPattern(Led.Color.GREEN).pulseDuration((short)(1)));
+            if (true) {
+                // THIS IS A SWITCH TO SEE WHICH AXIS WE'RE TRACKING
+                // currently only pitch
+                data = pitch_data.get(0).floatValue();
             }
-            else{
-                configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
-                configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(1)));
-            }
-            ledModule.play();
 
-            text1 = p_f;
-            text2 = r_f;
-            text3 = y_f;
+//            float p_f = pitch_data.get(0).floatValue();
+//            float r_f = roll_data.get(0).floatValue();
+//            float y_f = yaw_data.get(0).floatValue();
+
+//            ledModule.stop(true);
+//            if(isPeriodic){
+//                configureChannel(ledModule.editPattern(Led.Color.GREEN, Led.PatternPreset.BLINK));
+//                configureChannel(ledModule.editPattern(Led.Color.GREEN).pulseDuration((short)(1)));
+//            }
+//            else{
+//                configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
+//                configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(1)));
+//            }
+//            ledModule.play();
+
+//            text1 = p_f;
+//            text2 = r_f;
+//            text3 = y_f;
 
             // THIS IS WHAT WAS WORKING IN THE LAST DEMO, do not touch
             chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
-            chartData.addEntry(new Entry(p_f, sampleCount), 0);
-            chartData.addEntry(new Entry(r_f, sampleCount), 1);
-            chartData.addEntry(new Entry(y_f, sampleCount), 2);
+            // 0 if periodic, 1 elsewise
+            chartData.getDataSetByIndex(0).resetColors();
+            if (isPeriodic) {
+                chartData.getDataSetByIndex(0).addColor(Color.rgb(80, 250, 123));
+            }
+            else {
+                chartData.getDataSetByIndex(0).addColor(Color.rgb(255,85,85));
+            }
+            chartData.addEntry(new Entry(data, sampleCount), 0);
+//            chartData.addEntry(new Entry(p_f, sampleCount), 0);
+//            chartData.addEntry(new Entry(r_f, sampleCount), 1);
+//            chartData.addEntry(new Entry(y_f, sampleCount), 2);
             if (rep) {
-                chartData.addEntry(new Entry(0f, sampleCount), 3);
+                chartData.addEntry(new Entry(data, sampleCount), 1);
                 rep = false;
             }
             chart.getData().notifyDataChanged();
             chart.notifyDataSetChanged();
-            chartData.removeEntry(0, 1);
-            chartData.removeEntry(0, 2);
-            chartData.removeEntry(0, 3);
+//            chartData.removeEntry(0, 1);
+//            chartData.removeEntry(0, 2);
 
             moveViewToLast();
             sampleCount++;

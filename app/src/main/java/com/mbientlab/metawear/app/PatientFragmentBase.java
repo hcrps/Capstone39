@@ -76,7 +76,6 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     protected boolean toofast = false;
 
     protected int numReps = 0;
-    protected double percentThreshold = 0;
     private TextView repsText;
 
     static int REP_DELAY = 50;
@@ -95,16 +94,27 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     private final Handler chartHandler= new Handler();
 
     protected float text1, text2, text3, freqtext;
+    protected double percentMotion;
 
-    private CustomSeekBar seekbar;
-    private float totalSpan = 300; // from 0.10 to 0.40 Hz
-    private float slowspan = 50; // less than 0.15
-    private float slowmidspan = 50;
-    private float greenSpan = 100;
-    private float fastmidspan = 50;
+    private CustomSeekBar freqseekbar;
+    private float totalSpan = 500; // from 0 to 0.5 Hz
+    private float slowspan = 50; // less than 0.10
+    private float slowmidspan = 100;
+    private float greenSpan = 200;
+    private float fastmidspan = 100;
     private float fastspan;
-    private ArrayList<ProgressItem> progressItemList;
+    private ArrayList<ProgressItem> freqprogressItemList;
     private ProgressItem mProgressItem;
+
+    private CustomSeekBar moveseekbar;
+    private float movetotalSpan = 100;
+    private float low = 50; // less than 0.10
+    private float middle = 30;
+    private float high;
+    private ArrayList<ProgressItem> moveprogressItemList;
+
+    RepetitiveDetector motion;
+
 
     protected PatientFragmentBase(int sensorResId, int layoutId, float min, float max) {
         super(sensorResId);
@@ -150,7 +160,8 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         super.onViewCreated(view, savedInstanceState);
 
         // SEEKBAR
-        seekbar = ((CustomSeekBar) view.findViewById(R.id.customSeekBar));
+        freqseekbar = ((CustomSeekBar) view.findViewById(R.id.freqcustomSeekBar));
+        moveseekbar = ((CustomSeekBar) view.findViewById(R.id.movecustomSeekBar));
         initDataToSeekbar();
         //
 
@@ -166,27 +177,14 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         chart.getXAxis().setTextColor(Color.WHITE);
         chart.getLegend().setTextColor(Color.WHITE);
 
-        pitchText = (TextView) view.findViewById(R.id.layout_three_text_left);
-        rollText = (TextView) view.findViewById(R.id.layout_three_text_center);
-        yawText = (TextView) view.findViewById(R.id.layout_three_text_right);
-        pitchText.setText(getString(R.string.label_pitch, text1));
-        rollText.setText(getString(R.string.label_roll, text2));
-        yawText.setText(getString(R.string.label_yaw, text3));
-        repsText = (TextView) view.findViewById(R.id.layout_two_text_left);
+        repsText = (TextView) view.findViewById(R.id.layout_one_text);
         repsText.setText(getString(R.string.label_reps, numReps));
-        isPText = (TextView) view.findViewById(R.id.layout_two_text_right);
-        isPText.setText(R.string.label_not_periodic);
-        errorText = (TextView) view.findViewById(R.id.layout_one_text);
-        errorText.setText(R.string.label_no_motion);
 
         textUpdateHandler.post( new RptUpdater() );
 
-//        Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
-//        clearButton.setOnClickListener(view1 -> refreshChart(true));
-//        clearButton.setText(R.string.label_clear);
-
         ((Switch) view.findViewById(R.id.sample_control)).setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
+                motion = new RepetitiveDetector();
                 setup();
                 if (ledModule != null){
                     ledModule.stop(true);
@@ -195,8 +193,17 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
                 if (ledModule != null){
                     ledModule.stop(true);
                 }
-                chart.setVisibleXRangeMinimum(1);
-                chart.setVisibleXRangeMaximum(sampleCount);
+                isPeriodic = false;
+                motionError = false;
+                toofast = false;
+                percentMotion = 0;
+                chart.setVisibleXRangeMinimum(120);
+                chart.setVisibleXRangeMaximum(120);
+                sampleCount = 0;
+                numReps = 0;
+                chart.getData().getDataSetByIndex(0).clear();
+                chart.getData().getDataSetByIndex(1).clear();
+                chartXValues.clear();
                 clean();
                 if (streamRoute != null) {
                     streamRoute.remove();
@@ -207,35 +214,55 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     }
 
     private void initDataToSeekbar() {
-        progressItemList = new ArrayList<ProgressItem>();
+        freqprogressItemList = new ArrayList<ProgressItem>();
         // red span
         mProgressItem = new ProgressItem();
         mProgressItem.progressItemPercentage = ((slowspan / totalSpan) * 100);
         mProgressItem.colour = Color.rgb(255,85,85);
-        progressItemList.add(mProgressItem);
+        freqprogressItemList.add(mProgressItem);
         // blue span
         mProgressItem = new ProgressItem();
         mProgressItem.progressItemPercentage = (slowmidspan / totalSpan) * 100;
         mProgressItem.colour = Color.rgb(241,250,140);
-        progressItemList.add(mProgressItem);
+        freqprogressItemList.add(mProgressItem);
         // green span
         mProgressItem = new ProgressItem();
         mProgressItem.progressItemPercentage = (greenSpan / totalSpan) * 100;
         mProgressItem.colour = Color.rgb(80,250,123);
-        progressItemList.add(mProgressItem);
+        freqprogressItemList.add(mProgressItem);
         // yellow span
         mProgressItem = new ProgressItem();
         mProgressItem.progressItemPercentage = (fastmidspan / totalSpan) * 100;
         mProgressItem.colour = Color.rgb(241,250,140);
-        progressItemList.add(mProgressItem);
+        freqprogressItemList.add(mProgressItem);
         // greyspan
         mProgressItem = new ProgressItem();
         mProgressItem.progressItemPercentage = (fastspan / totalSpan) * 100;
         mProgressItem.colour = Color.rgb(255,85,85);
-        progressItemList.add(mProgressItem);
+        freqprogressItemList.add(mProgressItem);
 
-        seekbar.initData(progressItemList);
-        seekbar.invalidate();
+        freqseekbar.initData(freqprogressItemList);
+        freqseekbar.invalidate();
+
+        moveprogressItemList = new ArrayList<ProgressItem>();
+        // red span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = ((low / movetotalSpan) * 100);
+        mProgressItem.colour = Color.rgb(255,85,85);
+        moveprogressItemList.add(mProgressItem);
+        // blue span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (middle / movetotalSpan) * 100;
+        mProgressItem.colour = Color.rgb(241,250,140);
+        moveprogressItemList.add(mProgressItem);
+        // green span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (high / movetotalSpan) * 100;
+        mProgressItem.colour = Color.rgb(80,250,123);
+        moveprogressItemList.add(mProgressItem);
+
+        moveseekbar.initData(moveprogressItemList);
+        moveseekbar.invalidate();
     }
 
     protected void refreshChart(boolean clearData) {
@@ -247,8 +274,8 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         resetData(true);
         chart.invalidate();
         chart.fitScreen();
-        chart.setVisibleXRangeMinimum(1);
-        chart.setVisibleXRangeMaximum(sampleCount);
+        chart.setVisibleXRangeMinimum(120);
+        chart.setVisibleXRangeMaximum(120);
     }
 
     protected void initializeChart() {
@@ -258,6 +285,9 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         leftAxis.setAxisMaxValue(max);
         leftAxis.setAxisMinValue(min);
         chart.getAxisRight().setEnabled(false);
+        chart.getXAxis().setDrawGridLines(false);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setDrawGridLines(false);
     }
 
     protected abstract void setup();
@@ -273,34 +303,26 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         }
     }
     public void updatetext(){
-        pitchText.setText(getString(R.string.label_pitch, text1));
-        rollText.setText(getString(R.string.label_roll, text2));
-        yawText.setText(getString(R.string.label_yaw, text3));
         repsText.setText(getString(R.string.label_reps, numReps));
         if (isPeriodic){
-            isPText.setText(getString(R.string.label_is_periodic, freqtext));
-            if (0.1 < freqtext && freqtext < 0.4) {
-                seekbar.setProgress((int) (freqtext - 0.1) * 100);
-            }
-            else if (freqtext < 0.1)
-                seekbar.setProgress(0);
-            else
-                seekbar.setProgress(100);
-            if (motionError){
-                if (toofast) {
-                    errorText.setText(R.string.label_too_fast);
-                }
-                else {
-                    errorText.setText(R.string.label_too_slow);
-                }
-            }
-            else{
-                errorText.setText(R.string.label_no_error);
-            }
+            freqseekbar.setProgress((int) (freqtext * 200.0));
+            moveseekbar.setProgress((int) percentMotion);
+//            if (motionError){
+//                if (toofast) {
+//                    errorText.setText(R.string.label_too_fast);
+//                }
+//                else {
+//                    errorText.setText(R.string.label_too_slow);
+//                }
+//            }
+//            else{
+//                errorText.setText(R.string.label_no_error);
+//            }
         }
         else{
-            isPText.setText(R.string.label_not_periodic);
-            errorText.setText(R.string.label_no_motion);
+//            errorText.setText(R.string.label_no_motion);
+            freqseekbar.setProgress(0);
+            moveseekbar.setProgress(0);
         }
     }
 
