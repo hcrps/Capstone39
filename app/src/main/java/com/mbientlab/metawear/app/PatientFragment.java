@@ -81,16 +81,14 @@ public class PatientFragment extends PatientFragmentBase {
 
     private boolean rep = false;
 
+    private boolean done = false;
+
     //this are new definitions added by Janelle
     //private int index = 0; //used to index the circular arrays
     private int capacity = 1024; //this is the maximum number of entries we will have in the circular arrays
     int Fs = 100; //the sampling frequency
     private final ArrayList<Entry> x0 = new ArrayList<>(capacity), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
     private SensorFusionBosch sensorFusion;
-
-    ArrayList<Double> pitch_data = new ArrayList<>();
-    ArrayList<Double> roll_data = new ArrayList<>();
-    ArrayList<Double> yaw_data = new ArrayList<>();
 
     Filtration filtration = new Filtration();
 //    InitialPeriodicMotionDetector initDetector = new InitialPeriodicMotionDetector(Fs, capacity);
@@ -222,26 +220,38 @@ public class PatientFragment extends PatientFragmentBase {
         roll_data = filtration.Filter(roll_data, capacity, "roll");
         yaw_data = filtration.Filter(yaw_data, capacity, "yaw");
 
-        isPeriodic = motion.isPeriodic(pitch_data);
+        isPeriodic = motion.isPeriodic(pitch_data, roll_data, yaw_data);
         freqtext = (float) motion.getfreq();
         motionError = motion.isMotionError();
         toofast = motion.isToofast();
         double oldRepCount = numReps;
         int resetCal = motion.getResetCalib();
         numReps = motion.getRepCount();
+        if(numReps >= repsInSet){
+            done = true;
+        }
+        else
+            done = false;
+        if(motion.getfreq() != 0)
+        System.out.println("Cali Complete? " + motion.percentThreshold() + " Cali Complete " + motion.getfreq());
+        int chosenAngle = motion.getChosenAngle();
         if((oldRepCount != numReps) || resetCal ==1)
             rep = true;
 
-        //Kahlan this is where the percent for amplitude is
         percentMotion = motion.percentThreshold();
 
         current = System.currentTimeMillis();
         if (prevUpdate1 == -1 || (current - prevUpdate1) >= 200 || rep) {
             prevUpdate1 = current;
 
-            if (true) {
-                // THIS IS A SWITCH TO SEE WHICH AXIS WE'RE TRACKING
-                // currently only pitch
+            // THIS IS A SWITCH TO SEE WHICH AXIS WE'RE TRACKING
+            if(chosenAngle == 1) {
+                data = roll_data.get(0).floatValue();
+            }
+            else if(chosenAngle == 2) {
+                data = yaw_data.get(0).floatValue();
+            }
+            else {
                 data = pitch_data.get(0).floatValue();
             }
 

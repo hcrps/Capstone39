@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -71,12 +72,19 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     protected int sampleCount;
     protected long prevUpdate = -1;
 
+    ArrayList<Double> pitch_data = new ArrayList<>();
+    ArrayList<Double> roll_data = new ArrayList<>();
+    ArrayList<Double> yaw_data = new ArrayList<>();
+
     protected boolean isPeriodic = false;
     protected boolean motionError = false;
     protected boolean toofast = false;
 
     protected int numReps = 0;
+    protected int repsInSet = 30;
     private TextView repsText;
+    private TextView threshText;
+    private TextView repsthreshtext;
 
     static int REP_DELAY = 50;
     private TextView pitchText;
@@ -108,10 +116,15 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
 
     private CustomSeekBar moveseekbar;
     private float movetotalSpan = 100;
-    private float low = 50; // less than 0.10
-    private float middle = 30;
+    private float low = 10; // less than 0.10
+    private float lowmid = 20;
+    private float mid = 40;
+    private float highmid = 20;
     private float high;
     private ArrayList<ProgressItem> moveprogressItemList;
+
+    private SeekBar thresholdseekbar, repsseekbar;
+    private float thresholdspan = 100;
 
     RepetitiveDetector motion;
 
@@ -162,6 +175,8 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         // SEEKBAR
         freqseekbar = ((CustomSeekBar) view.findViewById(R.id.freqcustomSeekBar));
         moveseekbar = ((CustomSeekBar) view.findViewById(R.id.movecustomSeekBar));
+        thresholdseekbar = ((SeekBar) view.findViewById(R.id.threshold_seekbar));
+        repsseekbar = ((SeekBar) view.findViewById(R.id.reps_seekbar));
         initDataToSeekbar();
         //
 
@@ -180,10 +195,19 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         repsText = (TextView) view.findViewById(R.id.layout_one_text);
         repsText.setText(getString(R.string.label_reps, numReps));
 
+        threshText = (TextView) view.findViewById(R.id.label_threshold);
+        threshText.setText(getString(R.string.label_threshold, 20));
+
+        repsthreshtext = (TextView) view.findViewById(R.id.label_reps);
+        repsthreshtext.setText(getString(R.string.label_repexplain, 30));
+
         textUpdateHandler.post( new RptUpdater() );
 
         ((Switch) view.findViewById(R.id.sample_control)).setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
+                pitch_data.clear();
+                roll_data.clear();
+                yaw_data.clear();
                 motion = new RepetitiveDetector();
                 setup();
                 if (ledModule != null){
@@ -250,19 +274,60 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         mProgressItem.progressItemPercentage = ((low / movetotalSpan) * 100);
         mProgressItem.colour = Color.rgb(255,85,85);
         moveprogressItemList.add(mProgressItem);
-        // blue span
+        // yellow span
         mProgressItem = new ProgressItem();
-        mProgressItem.progressItemPercentage = (middle / movetotalSpan) * 100;
+        mProgressItem.progressItemPercentage = (lowmid / movetotalSpan) * 100;
         mProgressItem.colour = Color.rgb(241,250,140);
         moveprogressItemList.add(mProgressItem);
         // green span
         mProgressItem = new ProgressItem();
-        mProgressItem.progressItemPercentage = (high / movetotalSpan) * 100;
+        mProgressItem.progressItemPercentage = (mid / movetotalSpan) * 100;
         mProgressItem.colour = Color.rgb(80,250,123);
+        moveprogressItemList.add(mProgressItem);
+        // yellow span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (highmid / movetotalSpan) * 100;
+        mProgressItem.colour = Color.rgb(241,250,140);
+        moveprogressItemList.add(mProgressItem);
+        // red span
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (high / movetotalSpan) * 100;
+        mProgressItem.colour = Color.rgb(255,85,85);
         moveprogressItemList.add(mProgressItem);
 
         moveseekbar.initData(moveprogressItemList);
         moveseekbar.invalidate();
+
+        thresholdseekbar.setOnSeekBarChangeListener(new threshSeekBarListener());
+        thresholdseekbar.invalidate();
+
+        repsseekbar.setOnSeekBarChangeListener(new repsSeekBarListener());
+        repsseekbar.invalidate();
+    }
+
+    protected class threshSeekBarListener implements SeekBar.OnSeekBarChangeListener {
+        public void onProgressChanged(SeekBar seekBar, int progress,
+                                      boolean fromUser) {
+            if (motion != null)
+                motion.threshold = progress;
+            threshText.setText(getString(R.string.label_threshold, progress));
+        }
+        public void onStartTrackingTouch(SeekBar seekBar) {}
+
+        public void onStopTrackingTouch(SeekBar seekBar) {}
+
+    }
+
+    protected class repsSeekBarListener implements SeekBar.OnSeekBarChangeListener {
+        public void onProgressChanged(SeekBar seekBar, int progress,
+                                      boolean fromUser) {
+            repsthreshtext.setText(getString(R.string.label_repexplain, progress+5));
+            repsInSet = progress+5;
+        }
+        public void onStartTrackingTouch(SeekBar seekBar) {}
+
+        public void onStopTrackingTouch(SeekBar seekBar) {}
+
     }
 
     protected void refreshChart(boolean clearData) {

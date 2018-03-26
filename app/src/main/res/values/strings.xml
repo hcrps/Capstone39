@@ -294,6 +294,9 @@
     <string name="label_too_slow">Speed Up!</string>
     <string name="label_no_motion">No Motion Detected</string>
 
+    <string name="label_repexplain">Perform a set of %2d repetitions.</string>
+    <string name="label_threshold">Must be within %2d percent of ideal amplitude for rep to count.</string>
+
     <string name="label_view_data">View Status</string>
     <string name="label_save">Save</string>
     <string name="label_empty">Empty!</string>

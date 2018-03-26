@@ -51,4 +51,56 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
 
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:weightSum="2"
+        android:orientation="horizontal">
+        <TextView android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Threshold  "/>
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/threshold_seekbar"
+            android:thumb="@drawable/seek_thumb_normal"
+            android:max="99"
+            android:progress="20"
+            android:layout_weight="1"/>
+    </LinearLayout>
+    <TextView android:layout_width="fill_parent"
+        android:id="@+id/label_threshold"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="10sp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/label_threshold"/>
+
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:weightSum="2"
+        android:orientation="horizontal">
+        <TextView android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Reps  "/>
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/reps_seekbar"
+            android:thumb="@drawable/seek_thumb_normal"
+            android:max="25"
+            android:progress="30"
+            android:layout_weight="1"/>
+    </LinearLayout>
+    <TextView android:layout_width="fill_parent"
+        android:id="@+id/label_reps"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="10sp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/label_repexplain"/>
+
 </LinearLayout>
