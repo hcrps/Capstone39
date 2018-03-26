@@ -232,11 +232,13 @@ public class PatientFragment extends PatientFragmentBase {
         }
         else
             done = false;
-        if(motion.getfreq() != 0)
-        System.out.println("Cali Complete? " + motion.percentThreshold() + " Cali Complete " + motion.getfreq());
+       // if(motion.getfreq() != 0)
+        //System.out.println("Cali Complete? " + motion.percentThreshold() + " Cali Complete " + motion.getfreq());
         int chosenAngle = motion.getChosenAngle();
-        if((oldRepCount != numReps) || resetCal ==1)
+        if((oldRepCount != numReps) || resetCal == 1)
             rep = true;
+
+        //System.out.println("Old Rep Count: "+ oldRepCount + " New Rep Count " + numReps + " Rep " + rep + " Reset Calib " + resetCal);
 
         percentMotion = motion.percentThreshold();
 

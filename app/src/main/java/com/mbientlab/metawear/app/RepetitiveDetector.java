@@ -225,7 +225,7 @@ public class RepetitiveDetector {
         checkForReps(pastPitchEntries, 0, i);
         checkForReps(pastRollEntries, 1, i);
         checkForReps(pastYawEntries, 2, i);
-
+        
         /*if(chosenAngle == -1){
             boolean[] ready = new boolean[3];
             for(int x = 0; x < 3; x++){
@@ -263,12 +263,12 @@ public class RepetitiveDetector {
         if(chosenAngle == -1){
             boolean[] ready = new boolean[3];
             for(int x = 0; x < 3; x++){
-                if(numMaxes[x] == 1 && numMins[x] == 1) {
+                if(numMaxes[x] == numMins[x]) {
                     ready[x] = true;
                     difference[x] = (repMaxVal[x] - repMinVal[x]);
                 }
             }
-            if(ready[0] && difference[0] < 0.1 || (i - lastMaxIndex[0]) > 400){
+            if(ready[0] && difference[0] < 5 || (i - lastCountedMax[0]) > 400 || Math.abs(numMaxes[0] - numMins[0]) > 1){
                 if(ready[1] && difference[1] > difference[2] && difference[1] > 0.1) {
                     ideal_p2p = difference[1];
                     RepCount = 1;
@@ -322,7 +322,7 @@ public class RepetitiveDetector {
             }
         }*/
 
-        else if(Math.abs(numMaxes[chosenAngle] - numMins[chosenAngle]) > 1){
+        else if((Math.abs(numMaxes[chosenAngle] - numMins[chosenAngle]) > 1)&& RepCount < 3){
             boolean[] ready = new boolean[3];
             for(int x = 0; x < 3; x++){
                 if(numMaxes[x] == numMins[x]) {
@@ -337,6 +337,7 @@ public class RepetitiveDetector {
                 newMax[0] = 0;
                 newMin[0] = 0;
                 chosenAngle = 0;
+                resetCalib = 1;
             }
             else if(ready[1] && difference[1] > difference[2] && difference[1] > 0.1){
                 ideal_p2p = difference[1];
@@ -345,6 +346,7 @@ public class RepetitiveDetector {
                 newMax[1] = 0;
                 newMin[1] = 0;
                 chosenAngle = 1;
+                resetCalib = 1;
             }
             else if (ready[2] && difference[2] > 0.1){
                 ideal_p2p = difference[2];
@@ -353,8 +355,12 @@ public class RepetitiveDetector {
                 newMax[2] = 0;
                 newMin[2] = 0;
                 chosenAngle = 2;
+                resetCalib = 1;
             }
-            resetCalib = 1;
+        }
+        else if ((Math.abs(numMaxes[chosenAngle] - numMins[chosenAngle]) > 1) && RepCount >=3){
+            numMins[chosenAngle] = 0;
+            numMaxes[chosenAngle] = 0;
         }
         else {
             if (newMax[chosenAngle] == 1 && newMin[chosenAngle] == 1) {
@@ -378,6 +384,7 @@ public class RepetitiveDetector {
                             numMaxes[0] = 1;
                             numMins[0] = 1;
                             chosenAngle = 0;
+                            resetCalib = 1;
                         }
                         else if(ready[1] && difference[1] > difference[2]){
                             ideal_p2p = difference[1];
@@ -388,6 +395,7 @@ public class RepetitiveDetector {
                             numMaxes[1] = 1;
                             numMins[1] = 1;
                             chosenAngle = 1;
+                            resetCalib = 1;
                         }
                         else if (ready[2]){
                             ideal_p2p = difference[2];
@@ -398,8 +406,8 @@ public class RepetitiveDetector {
                             numMaxes[2] = 1;
                             numMins[2] = 1;
                             chosenAngle = 2;
+                            resetCalib = 1;
                         }
-                        resetCalib = 1;
                     }
                     else{ //fits in calibration
                         ideal_p2p = (ideal_p2p + difference[chosenAngle]) / 2;
