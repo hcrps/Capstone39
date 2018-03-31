@@ -225,7 +225,7 @@ public class RepetitiveDetector {
         checkForReps(pastPitchEntries, 0, i);
         checkForReps(pastRollEntries, 1, i);
         checkForReps(pastYawEntries, 2, i);
-        
+
         /*if(chosenAngle == -1){
             boolean[] ready = new boolean[3];
             for(int x = 0; x < 3; x++){
@@ -364,7 +364,7 @@ public class RepetitiveDetector {
         }
         else {
             if (newMax[chosenAngle] == 1 && newMin[chosenAngle] == 1) {
-                if(numMaxes[chosenAngle] == numMins[chosenAngle] && numMaxes[chosenAngle] < 4){ //still in calibration
+                if(numMaxes[chosenAngle] == numMins[chosenAngle] && RepCount < 3){ //still in calibration
                     boolean[] ready = new boolean[3];
                     for(int x = 0; x < 3; x++){
                         if(numMaxes[x] == numMins[x] && numMins[x] >= 1) {
