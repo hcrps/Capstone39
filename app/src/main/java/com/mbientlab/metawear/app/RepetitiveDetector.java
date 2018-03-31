@@ -226,10 +226,10 @@ public class RepetitiveDetector {
         checkForReps(pastRollEntries, 1, i);
         checkForReps(pastYawEntries, 2, i);
 
-        /*if(chosenAngle == -1){
+        if(chosenAngle == -1 && RepCount < 3){
             boolean[] ready = new boolean[3];
             for(int x = 0; x < 3; x++){
-                if(numMaxes[x] == 1 && numMins[x] == 1) {
+                if(numMaxes[x] == numMins[x]) {
                     ready[x] = true;
                     difference[x] = (repMaxVal[x] - repMinVal[x]);
                 }
@@ -258,69 +258,7 @@ public class RepetitiveDetector {
                 newMin[2] = 0;
                 chosenAngle = 2;
             }
-        }*/
-
-        if(chosenAngle == -1){
-            boolean[] ready = new boolean[3];
-            for(int x = 0; x < 3; x++){
-                if(numMaxes[x] == numMins[x]) {
-                    ready[x] = true;
-                    difference[x] = (repMaxVal[x] - repMinVal[x]);
-                }
-            }
-            if(ready[0] && difference[0] < 5 || (i - lastCountedMax[0]) > 400 || Math.abs(numMaxes[0] - numMins[0]) > 1){
-                if(ready[1] && difference[1] > difference[2] && difference[1] > 0.1) {
-                    ideal_p2p = difference[1];
-                    RepCount = 1;
-                    totalReps++;
-                    newMax[1] = 0;
-                    newMin[1] = 0;
-                    chosenAngle = 1;
-                }
-                else if (ready[2] && difference[2] > 0.1){
-                    ideal_p2p = difference[2];
-                    RepCount = 1;
-                    totalReps++;
-                    newMax[2] = 0;
-                    newMin[2] = 0;
-                    chosenAngle = 2;
-                }
-
-            }
-            else if(ready[0]){
-                    ideal_p2p = difference[0];
-                    RepCount = 1;
-                    totalReps++;
-                    newMax[0] = 0;
-                    newMin[0] = 0;
-                    chosenAngle = 0;
-                }
-            }
-          /*  if(ready[0] && difference[0]>difference[1] && difference[0]>difference[2] && difference[0] > 0.1){
-                ideal_p2p = difference[0];
-                RepCount = 1;
-                totalReps++;
-                newMax[0] = 0;
-                newMin[0] = 0;
-                chosenAngle = 0;
-            }
-            else if(ready[1] && difference[1] > difference[2] && difference[1] > 0.1){
-                ideal_p2p = difference[1];
-                RepCount = 1;
-                totalReps++;
-                newMax[1] = 0;
-                newMin[1] = 0;
-                chosenAngle = 1;
-            }
-            else if (ready[2] && difference[2] > 0.1){
-                ideal_p2p = difference[2];
-                RepCount = 1;
-                totalReps++;
-                newMax[2] = 0;
-                newMin[2] = 0;
-                chosenAngle = 2;
-            }
-        }*/
+        }
 
         else if((Math.abs(numMaxes[chosenAngle] - numMins[chosenAngle]) > 1)&& RepCount < 3){
             boolean[] ready = new boolean[3];
