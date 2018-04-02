@@ -85,6 +85,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     private TextView repsText;
     private TextView threshText;
     private TextView repsthreshtext;
+    private TextView progresstext;
 
     static int REP_DELAY = 50;
     private TextView pitchText;
@@ -122,6 +123,11 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     private float highmid = 20;
     private float high;
     private ArrayList<ProgressItem> moveprogressItemList;
+
+    private CustomSeekBar progressseekbar;
+    private float progresstotalSpan = 100;
+    private float remaining;
+    private ArrayList<ProgressItem> progressItemList;
 
     private SeekBar thresholdseekbar, repsseekbar;
     private float thresholdspan = 100;
@@ -175,6 +181,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         // SEEKBAR
         freqseekbar = ((CustomSeekBar) view.findViewById(R.id.freqcustomSeekBar));
         moveseekbar = ((CustomSeekBar) view.findViewById(R.id.movecustomSeekBar));
+        progressseekbar = ((CustomSeekBar) view.findViewById(R.id.repprogressseekbar));
         thresholdseekbar = ((SeekBar) view.findViewById(R.id.threshold_seekbar));
         repsseekbar = ((SeekBar) view.findViewById(R.id.reps_seekbar));
         initDataToSeekbar();
@@ -192,14 +199,17 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         chart.getXAxis().setTextColor(Color.WHITE);
         chart.getLegend().setTextColor(Color.WHITE);
 
-        repsText = (TextView) view.findViewById(R.id.layout_one_text);
-        repsText.setText(getString(R.string.label_reps, numReps));
+//        repsText = (TextView) view.findViewById(R.id.layout_one_text);
+//        repsText.setText(getString(R.string.label_reps, numReps));
 
         threshText = (TextView) view.findViewById(R.id.label_threshold);
         threshText.setText(getString(R.string.label_threshold, 20));
 
         repsthreshtext = (TextView) view.findViewById(R.id.label_reps);
-        repsthreshtext.setText(getString(R.string.label_repexplain, 30));
+        repsthreshtext.setText(getString(R.string.label_repexplain, repsInSet));
+
+        progresstext = (TextView) view.findViewById(R.id.label_progress);
+        progresstext.setText(getString(R.string.label_progress,numReps, repsInSet));
 
         textUpdateHandler.post( new RptUpdater() );
 
@@ -298,6 +308,18 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         moveseekbar.initData(moveprogressItemList);
         moveseekbar.invalidate();
 
+        progressItemList = new ArrayList<ProgressItem>();
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (0);
+        mProgressItem.colour = Color.rgb(255,184,108);
+        progressItemList.add(mProgressItem);
+        mProgressItem = new ProgressItem();
+        mProgressItem.progressItemPercentage = (100);
+        mProgressItem.colour = Color.rgb(255,255,255);
+        progressItemList.add(mProgressItem);
+        progressseekbar.initData(progressItemList);
+        progressseekbar.invalidate();
+
         thresholdseekbar.setOnSeekBarChangeListener(new threshSeekBarListener());
         thresholdseekbar.invalidate();
 
@@ -323,6 +345,7 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
                                       boolean fromUser) {
             repsthreshtext.setText(getString(R.string.label_repexplain, progress+5));
             repsInSet = progress+5;
+            progresstext.setText(getString(R.string.label_progress,numReps,repsInSet));
         }
         public void onStartTrackingTouch(SeekBar seekBar) {}
 
@@ -368,25 +391,26 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
         }
     }
     public void updatetext(){
-        repsText.setText(getString(R.string.label_reps, numReps));
+        //repsText.setText(getString(R.string.label_reps, numReps));
         if (isPeriodic){
             int progress = (int) (freqtext * 40.0);
             freqseekbar.setProgress(5*progress);
             moveseekbar.setProgress((int) percentMotion);
-//            if (motionError){
-//                if (toofast) {
-//                    errorText.setText(R.string.label_too_fast);
-//                }
-//                else {
-//                    errorText.setText(R.string.label_too_slow);
-//                }
-//            }
-//            else{
-//                errorText.setText(R.string.label_no_error);
-//            }
+            progresstext.setText(getString(R.string.label_progress,numReps,repsInSet));
+            progressItemList = new ArrayList<ProgressItem>();
+            mProgressItem = new ProgressItem();
+            mProgressItem.progressItemPercentage = (int)((numReps*100)/repsInSet);
+            mProgressItem.colour = Color.rgb(255,184,108);
+            progressItemList.add(mProgressItem);
+            mProgressItem = new ProgressItem();
+            mProgressItem.progressItemPercentage = (int)((remaining*100)/repsInSet);
+            mProgressItem.colour = Color.rgb(255,255,255);
+            progressItemList.add(mProgressItem);
+            progressseekbar.initData(progressItemList);
+            progressseekbar.invalidate();
+            progressseekbar.setProgress(((numReps*100)/repsInSet));
         }
-        else{
-//            errorText.setText(R.string.label_no_motion);
+        else{ // no motion detected
             freqseekbar.setProgress(0);
             moveseekbar.setProgress(0);
         }

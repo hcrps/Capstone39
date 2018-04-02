@@ -75,6 +75,9 @@ import org.w3c.dom.Text;
  */
 
 public class PatientFragment extends PatientFragmentBase {
+
+    private int[] colors = {Color.rgb(255,255,255),Color.rgb(255,85,85)};
+    private String[] labels = {"Detected Reps", "Movement Data"};
     private static final float SAMPLING_PERIOD = 1 / 200f;
     private final Handler chartHandler= new Handler();
     private long prevUpdate1 = -1;
@@ -87,7 +90,7 @@ public class PatientFragment extends PatientFragmentBase {
     //private int index = 0; //used to index the circular arrays
     private int capacity = 1024; //this is the maximum number of entries we will have in the circular arrays
     int Fs = 100; //the sampling frequency
-    private final ArrayList<Entry> x0 = new ArrayList<>(capacity), x1 = new ArrayList<>(), x2 = new ArrayList<>(), x3 = new ArrayList<>();
+    private final ArrayList<Entry> x0 = new ArrayList<>(capacity), x1 = new ArrayList<>(capacity), x2 = new ArrayList<>(capacity), x3 = new ArrayList<>(capacity);
     private SensorFusionBosch sensorFusion;
 
     Filtration filtration = new Filtration();
@@ -164,18 +167,19 @@ public class PatientFragment extends PatientFragmentBase {
 
         ArrayList<LineDataSet> spinAxisData = new ArrayList<>();
 
+        spinAxisData.add(new LineDataSet(x0, "Reps"));
+        spinAxisData.get(0).setCircleColor(Color.rgb(255,255,255));
+        spinAxisData.get(0).setColor(Color.rgb(68,71,90));
+        spinAxisData.get(0).setDrawCircles(true);
+
         spinAxisData.add(new LineDataSet(x1, "Movement"));
-        spinAxisData.get(0).setColor(Color.rgb(255,85,85));
-        spinAxisData.get(0).setDrawCircles(false);
+        spinAxisData.get(1).setColor(Color.rgb(255,85,85));
+        spinAxisData.get(1).setDrawCircles(false);
 
 //        spinAxisData.add(new LineDataSet(x2, "Periodic"));
 //        spinAxisData.get(1).setColor(Color.rgb(80, 250, 123));
 //        spinAxisData.get(1).setDrawCircles(false);
 
-        spinAxisData.add(new LineDataSet(x0, "peaks"));
-        spinAxisData.get(1).setCircleColor(Color.rgb(255,255,255));
-        spinAxisData.get(1).setColor(Color.rgb(255, 255, 255));
-        spinAxisData.get(1).setDrawCircles(true);
 
         LineData data = new LineData(chartXValues);
         for (LineDataSet set : spinAxisData) {
@@ -183,6 +187,7 @@ public class PatientFragment extends PatientFragmentBase {
         }
         data.setDrawValues(false);
         chart.setData(data);
+        chart.getLegend().setCustom(colors, labels);
     }
 
     @Override
@@ -257,47 +262,27 @@ public class PatientFragment extends PatientFragmentBase {
                 data = pitch_data.get(0).floatValue();
             }
 
-//            float p_f = pitch_data.get(0).floatValue();
-//            float r_f = roll_data.get(0).floatValue();
-//            float y_f = yaw_data.get(0).floatValue();
-
-//            ledModule.stop(true);
-//            if(isPeriodic){
-//                configureChannel(ledModule.editPattern(Led.Color.GREEN, Led.PatternPreset.BLINK));
-//                configureChannel(ledModule.editPattern(Led.Color.GREEN).pulseDuration((short)(1)));
-//            }
-//            else{
-//                configureChannel(ledModule.editPattern(Led.Color.RED, Led.PatternPreset.BLINK));
-//                configureChannel(ledModule.editPattern(Led.Color.RED).pulseDuration((short)(1)));
-//            }
-//            ledModule.play();
-
-//            text1 = p_f;
-//            text2 = r_f;
-//            text3 = y_f;
-
             // THIS IS WHAT WAS WORKING IN THE LAST DEMO, do not touch
             chartData.addXValue(String.format(Locale.US, "%.2f", sampleCount * SAMPLING_PERIOD));
             // 0 if periodic, 1 elsewise
-            chartData.getDataSetByIndex(0).resetColors();
+            chartData.getDataSetByIndex(1).resetColors();
             if (isPeriodic) {
-                chartData.getDataSetByIndex(0).addColor(Color.rgb(80, 250, 123));
+                chartData.getDataSetByIndex(1).addColor(Color.rgb(80, 250, 123));
+                colors[1] = Color.rgb(80, 250, 123);
+                chart.getLegend().setCustom(colors, labels);
             }
             else {
-                chartData.getDataSetByIndex(0).addColor(Color.rgb(255,85,85));
+                chartData.getDataSetByIndex(1).addColor(Color.rgb(255,85,85));
+                colors[1] = Color.rgb(255,85,85);
+                chart.getLegend().setCustom(colors, labels);
             }
-            chartData.addEntry(new Entry(data, sampleCount), 0);
-//            chartData.addEntry(new Entry(p_f, sampleCount), 0);
-//            chartData.addEntry(new Entry(r_f, sampleCount), 1);
-//            chartData.addEntry(new Entry(y_f, sampleCount), 2);
+            chartData.addEntry(new Entry(data, sampleCount), 1);
             if (rep) {
-                chartData.addEntry(new Entry(data, sampleCount), 1);
+                chartData.addEntry(new Entry(data, sampleCount), 0);
                 rep = false;
             }
             chart.getData().notifyDataChanged();
             chart.notifyDataSetChanged();
-//            chartData.removeEntry(0, 1);
-//            chartData.removeEntry(0, 2);
 
             moveViewToLast();
             sampleCount++;

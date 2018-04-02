@@ -296,6 +296,7 @@
 
     <string name="label_repexplain">Perform a set of %2d repetitions.</string>
     <string name="label_threshold">Must be within %2d percent of ideal amplitude for rep to count.</string>
+    <string name="label_progress">Progress %2d/%2d</string>
 
     <string name="label_view_data">View Status</string>
     <string name="label_save">Save</string>
