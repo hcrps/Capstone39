@@ -231,6 +231,7 @@ public class PatientFragment extends PatientFragmentBase {
         toofast = motion.isToofast();
         double oldRepCount = numReps;
         int resetCal = motion.getResetCalib();
+        boolean calibDone = motion.calibrationComplete;
         numReps = motion.getRepCount();
         if(numReps >= repsInSet){
             done = true;
@@ -277,10 +278,17 @@ public class PatientFragment extends PatientFragmentBase {
                 chart.getLegend().setCustom(colors, labels);
             }
             chartData.addEntry(new Entry(data, sampleCount), 1);
+            ledModule.stop(true);
             if (rep) {
                 chartData.addEntry(new Entry(data, sampleCount), 0);
+                if(calibDone)
+                    ledModule.editPattern(Led.Color.GREEN);
+                if(numReps == repsInSet)
+                    ledModule.editPattern(Led.Color.BLUE);
                 rep = false;
             }
+            if(motionError)
+                ledModule.editPattern(Led.Color.RED);
             chart.getData().notifyDataChanged();
             chart.notifyDataSetChanged();
 
