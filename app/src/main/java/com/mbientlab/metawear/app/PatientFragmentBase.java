@@ -392,27 +392,28 @@ public abstract class PatientFragmentBase extends ModuleFragmentBase {
     }
     public void updatetext(){
         //repsText.setText(getString(R.string.label_reps, numReps));
-        if (isPeriodic){
-            int progress = (int) (freqtext * 40.0);
-            freqseekbar.setProgress(5*progress);
-            moveseekbar.setProgress((int) percentMotion);
-            progresstext.setText(getString(R.string.label_progress,numReps,repsInSet));
-            progressItemList = new ArrayList<ProgressItem>();
-            mProgressItem = new ProgressItem();
-            mProgressItem.progressItemPercentage = (int)((numReps*100)/repsInSet);
-            mProgressItem.colour = Color.rgb(255,184,108);
-            progressItemList.add(mProgressItem);
-            mProgressItem = new ProgressItem();
-            mProgressItem.progressItemPercentage = (int)((remaining*100)/repsInSet);
-            mProgressItem.colour = Color.rgb(255,255,255);
-            progressItemList.add(mProgressItem);
-            progressseekbar.initData(progressItemList);
-            progressseekbar.invalidate();
-            progressseekbar.setProgress(((numReps*100)/repsInSet));
-        }
-        else{ // no motion detected
-            freqseekbar.setProgress(0);
-            moveseekbar.setProgress(0);
+        if (numReps < repsInSet) {
+            if (isPeriodic) {
+                int progress = (int) (freqtext * 40.0);
+                freqseekbar.setProgress(5 * progress);
+                moveseekbar.setProgress((int) percentMotion);
+                progresstext.setText(getString(R.string.label_progress, numReps, repsInSet));
+                progressItemList = new ArrayList<ProgressItem>();
+                mProgressItem = new ProgressItem();
+                mProgressItem.progressItemPercentage = (int) ((numReps * 100) / repsInSet);
+                mProgressItem.colour = Color.rgb(255, 184, 108);
+                progressItemList.add(mProgressItem);
+                mProgressItem = new ProgressItem();
+                mProgressItem.progressItemPercentage = (int) ((remaining * 100) / repsInSet);
+                mProgressItem.colour = Color.rgb(255, 255, 255);
+                progressItemList.add(mProgressItem);
+                progressseekbar.initData(progressItemList);
+                progressseekbar.invalidate();
+                progressseekbar.setProgress(((numReps * 100) / repsInSet));
+            } else { // no motion detected
+                freqseekbar.setProgress(0);
+                moveseekbar.setProgress(0);
+            }
         }
     }
 
