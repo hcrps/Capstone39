@@ -9,11 +9,11 @@ import java.util.List;
  */
 
 public class Filtration {
+    int pitch_flip = 0;
+    int roll_flip = 0;
+    int yaw_flip = 0;
 
-    public static ArrayList<Double> Filter(ArrayList<Double> data, int capacity, String angle){
-        int pitch_flip = 0;
-        int roll_flip = 0;
-        int yaw_flip = 0;
+    public ArrayList<Double> Filter(ArrayList<Double> data, int capacity, String angle){
         double pitchB[] = {0.0115586129393857, 0.0269127184226144, 0.0689577752425094, 0.124811024018249,
                 0.172306936575946,0.190905865602590,0.172306936575946,0.124811024018249,0.0689577752425094,
                 0.0269127184226144,0.0115586129393857};
@@ -81,7 +81,7 @@ public class Filtration {
     }
 
 
-    public static int PitchFlipCheck(ArrayList<Double> data, int alreadyFlipped) {
+    public int PitchFlipCheck(ArrayList<Double> data, int alreadyFlipped) {
         int i = 0; //this is used as an index to get the previous data point and current
         int flip; //this returned, 0 is false, 1 is true
         double lastVal = data.get(i + 1);
@@ -121,7 +121,7 @@ public class Filtration {
         return flip; //basically returning a true or false on whether the data is still flipped
     }
 
-    public static int FlipCheck(ArrayList<Double> data, int alreadyFlipped) {
+    public int FlipCheck(ArrayList<Double> data, int alreadyFlipped) {
         int i = 0; //this is used as an index to get the previous data point and current
         int flip; //this returned, 0 is false, 1 is true
         double lastVal = data.get(i + 1);
@@ -163,7 +163,7 @@ public class Filtration {
 
 
     /*This function will return the data array after the FIR filter has been applied*/
-    private static double[] Convolution(double[] b, double[] data) {
+    private double[] Convolution(double[] b, double[] data) {
         int sizeofb = b.length; //the size of b
         int sizeofdata = data.length; //the number of data points we are storing
         int numrows = (sizeofdata + sizeofb) - 1; //the number of rows depends on the number of delays
